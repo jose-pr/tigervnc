@@ -21,5 +21,23 @@
 namespace rfb {
   const int qemuExtendedKeyEvent = 0;
   const int qemuAudio = 1;
+
+  // Server -> client operations under the qemuAudio submessage
+  // (RFB message type 255). Numbering and names match QEMU's own
+  // ui/vnc.c and upstream TigerVNC PR #1478. CMsgReader::
+  // readQEMUServerMessage() reads these generically and hands the
+  // payload to CMsgHandler; interpreting an operation is left to
+  // whatever implements audio on top.
+  const int msgFromQemuAudioEnd = 0;
+  const int msgFromQemuAudioBegin = 1;
+  const int msgFromQemuAudioData = 2;
+
+  // Client -> server operations under the same submessage. Separate
+  // numbering from the server->client set above -- QEMU's own
+  // protocol, not a convention picked here; each direction restarts
+  // from 0.
+  const int msgToQemuEnableAudio = 0;
+  const int msgToQemuDisableAudio = 1;
+  const int msgToQemuSetAudioFormat = 2;
 }
 #endif

@@ -44,6 +44,15 @@ namespace rfb {
   const int pseudoEncodingContinuousUpdates = -313;
   const int pseudoEncodingCursorWithAlpha = -314;
   const int pseudoEncodingQEMUKeyEvent = -258;
+  // QEMU's own audio extension (message type 255, qemuTypes.h's
+  // qemuAudio submessage). Deliberately not advertised by
+  // CConnection::updateEncodings() unconditionally the way QEMUKeyEvent
+  // is above: a client should offer it only once it has somewhere to
+  // send decoded PCM, since a server that honours it would otherwise
+  // encode audio nobody plays. -259 continues this file's own numbering
+  // immediately after -258, matching upstream TigerVNC PR #1478's
+  // unmerged choice for the same constant.
+  const int pseudoEncodingQEMUAudio = -259;
 
   // TightVNC-specific
   const int pseudoEncodingLastRect = -224;

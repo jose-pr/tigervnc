@@ -24,6 +24,8 @@
 #include <assert.h>
 #include <stdio.h>
 
+#include <algorithm>
+#include <cstdint>
 #include <vector>
 
 #include <core/LogWriter.h>
@@ -34,6 +36,7 @@
 #include <rdr/ZlibInStream.h>
 
 #include <rfb/msgTypes.h>
+#include <rfb/qemuTypes.h>
 #include <rfb/clipboardTypes.h>
 #include <rfb/Exception.h>
 #include <rfb/CMsgHandler.h>
@@ -53,7 +56,8 @@ using namespace rfb;
 
 CMsgReader::CMsgReader(CMsgHandler* handler_, rdr::InStream* is_)
   : imageBufIdealSize(0), handler(handler_), is(is_),
-    state(MSGSTATE_IDLE), cursorEncoding(-1)
+    state(MSGSTATE_IDLE), cursorEncoding(-1),
+    qemuSubMsgType(0), qemuOperation(0), qemuPayloadLeft(UINT32_MAX)
 {
 }
 
@@ -94,8 +98,93 @@ bool CMsgReader::readServerInit()
   return true;
 }
 
+bool CMsgReader::readQEMUServerMessage()
+{
+  // Entered either fresh (state was MSGSTATE_MESSAGE, header not yet
+  // read) or on re-entry after a previous call returned false because
+  // the payload hadn't fully arrived (state was MSGSTATE_QEMU_DATA,
+  // qemuPayloadLeft says how much is still outstanding). qemuPayloadLeft
+  // starts at UINT32_MAX as a sentinel for "haven't read the length yet"
+  // -- 0 is a legitimate real length (an empty AudioData is valid on the
+  // wire) and must not be confused with "not started".
+  if (qemuPayloadLeft == UINT32_MAX) {
+    if (!is->hasData(1 + 2))
+      return false;
+
+    is->setRestorePoint();
+    qemuSubMsgType = is->readU8();
+    qemuOperation = is->readU16();
+
+    // Only qemuAudio's "data" operation carries a length-prefixed
+    // payload on the wire (QEMU's own protocol, not a convention this
+    // reader invents) -- AudioBegin/AudioEnd and the key-event
+    // submessage are fixed-size with nothing beyond the 3-byte header.
+    // This is the one place genuine QEMU-submessage knowledge has to
+    // live in this otherwise-generic shuttle: without it there is no
+    // way to know whether more bytes belong to this message or start
+    // the next one.
+    bool hasLengthPrefixedPayload =
+      (qemuSubMsgType == qemuAudio) && (qemuOperation == msgFromQemuAudioData);
+
+    if (!hasLengthPrefixedPayload) {
+      is->clearRestorePoint();
+      qemuPayload.clear();
+      handler->handleQEMUServerMessage(qemuSubMsgType, qemuOperation,
+                                       nullptr, 0);
+      qemuPayloadLeft = UINT32_MAX;
+      return true;
+    }
+
+    if (!is->hasDataOrRestore(4)) {
+      // Header alone didn't fit either -- roll back so a retry re-reads
+      // it cleanly rather than leaving qemuSubMsgType/qemuOperation set
+      // without qemuPayloadLeft having been assigned.
+      return false;
+    }
+    is->clearRestorePoint();
+    qemuPayloadLeft = is->readU32();
+    qemuPayload.clear();
+    qemuPayload.reserve(qemuPayloadLeft);
+  }
+
+  // Drain whatever is available now; large audio buffers routinely span
+  // several socket reads, exactly like a big FramebufferUpdate rect.
+  while (qemuPayloadLeft != 0) {
+    size_t available = is->avail();
+    if (available == 0) {
+      if (!is->hasData(1))
+        return false;
+      available = is->avail();
+    }
+    size_t chunk = std::min<size_t>(available, qemuPayloadLeft);
+    const uint8_t* p = is->getptr(chunk);
+    qemuPayload.insert(qemuPayload.end(), p, p + chunk);
+    is->skip(chunk);
+    qemuPayloadLeft -= (uint32_t)chunk;
+  }
+
+  handler->handleQEMUServerMessage(qemuSubMsgType, qemuOperation,
+                                   qemuPayload.empty() ? nullptr
+                                                        : qemuPayload.data(),
+                                   qemuPayload.size());
+  qemuPayloadLeft = UINT32_MAX;
+  return true;
+}
+
 bool CMsgReader::readMsg()
 {
+  // A QEMU server message's payload (AudioData in particular) can be
+  // arbitrarily large and arrive across many reads, exactly like a
+  // framebuffer update's rects below -- so it needs the same "re-enter
+  // on the next readMsg() call" treatment, not the single-shot pattern
+  // every other case in the switch below uses.
+  if (state == MSGSTATE_QEMU_DATA) {
+    if (!readQEMUServerMessage())
+      return false;
+    state = MSGSTATE_IDLE;
+    return true;
+  }
+
   if (state == MSGSTATE_IDLE) {
     if (!is->hasData(1))
       return false;
@@ -126,6 +215,9 @@ bool CMsgReader::readMsg()
     case msgTypeEndOfContinuousUpdates:
       ret = readEndOfContinuousUpdates();
       break;
+    case msgTypeQEMUServerMessage:
+      ret = readQEMUServerMessage();
+      break;
     default:
       throw protocol_error(
         core::format(_("Unknown message type %d"), currentMsgType));
@@ -133,6 +225,13 @@ bool CMsgReader::readMsg()
 
     if (ret)
       state = MSGSTATE_IDLE;
+    else if (currentMsgType == msgTypeQEMUServerMessage)
+      // Unlike every other case above, a QEMU message can genuinely
+      // span multiple readMsg() calls (see readQEMUServerMessage()),
+      // so "not finished yet" must not be silently retried from
+      // scratch next time -- that would re-read the 3-byte header
+      // that has already been consumed.
+      state = MSGSTATE_QEMU_DATA;
 
     return ret;
   } else {
@@ -209,6 +308,39 @@ bool CMsgReader::readMsg()
       break;
     case pseudoEncodingQEMUKeyEvent:
       handler->supportsQEMUKeyEvent();
+      ret = true;
+      break;
+    case pseudoEncodingQEMUAudio:
+      /*
+       * NOT the wire format documented for this extension. Upstream
+       * TigerVNC PR #1478 has audio arrive via message type 255's
+       * qemuAudio submessage -- a side channel outside FramebufferUpdate
+       * entirely, which is what CMsgReader::readQEMUServerMessage() (a
+       * few functions up in this same file) implements.
+       *
+       * Checked directly against a real QEMU server: after SetEncodings
+       * advertises -259 and the client sends AudioSetFormat/AudioEnable,
+       * QEMU's first reply is a FramebufferUpdate containing exactly one
+       * zero-content rect with THIS pseudo-encoding as its value,
+       * spanning the full screen -- i.e. QEMU acknowledges here, through
+       * the ordinary rect-encoding channel, not (only) through message
+       * type 255. Before this case existed, that rect fell to the
+       * default branch below, DecodeManager::decodeRect() correctly
+       * refused to decode an encoding no Decoder implements, and the
+       * connection died with "Unknown encoding -259" -- confirmed by
+       * removing this case and re-running against the same server.
+       *
+       * This case is the SAFE FLOOR, not the finished feature: it stops
+       * the connection dying, by treating the rect the same way
+       * pseudoEncodingQEMUKeyEvent's marker rect above is treated (zero
+       * payload, nothing to decode). It does NOT deliver audio -- actual
+       * PCM, if QEMU also sends any via message type 255 for this
+       * pseudo-encoding, is still handled by readQEMUServerMessage()
+       * independently. Whether QEMU sends real audio data through a
+       * DIFFERENT rect encoding this case would need to also recognise,
+       * through message type 255 as originally documented, or through
+       * some other framing entirely, was not established.
+       */
       ret = true;
       break;
     case pseudoEncodingExtendedMouseButtons:

@@ -65,6 +65,7 @@ CConnection::CConnection()
   : csecurity(nullptr),
     supportsLocalCursor(false), supportsCursorPosition(false),
     supportsDesktopResize(false), supportsLEDState(false),
+    supportsAudio(false),
     is(nullptr), os(nullptr), reader_(nullptr), writer_(nullptr),
     shared(false),
     state_(RFBSTATE_UNINITIALISED),
@@ -1029,6 +1030,8 @@ void CConnection::updateEncodings()
   encodings.push_back(pseudoEncodingFence);
   encodings.push_back(pseudoEncodingQEMUKeyEvent);
   encodings.push_back(pseudoEncodingExtendedMouseButtons);
+  if (supportsAudio)
+    encodings.push_back(pseudoEncodingQEMUAudio);
 
   if (Decoder::supported(preferredEncoding)) {
     if (!noJpeg || preferredEncoding != encodingJPEG)

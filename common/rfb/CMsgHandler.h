@@ -84,6 +84,24 @@ namespace rfb {
                                         const size_t* lengths,
                                         const uint8_t* const* data) = 0;
 
+    // A raw QEMU vendor submessage (RFB message type 255, qemuTypes.h's
+    // subMsgType, e.g. qemuAudio) arriving from the server. `data`/`len`
+    // is the payload AFTER the 2-byte operation code -- e.g. for QEMU
+    // audio's AudioData that is the PCM bytes, for AudioBegin/AudioEnd
+    // it is empty. Deliberately not decoded any further here: parsing
+    // what a specific submessage/operation means is policy that belongs
+    // to whoever subclasses CMsgHandler (via CConnection), not to this
+    // protocol-shuttling layer. A default no-op body, unlike every other
+    // method here, because most CMsgHandler implementations (vncviewer
+    // among them) have no reason to care about a vendor extension they
+    // do not otherwise support.
+    virtual void handleQEMUServerMessage(uint8_t subMsgType,
+                                         uint16_t operation,
+                                         const uint8_t* data, size_t len)
+    {
+      (void)subMsgType; (void)operation; (void)data; (void)len;
+    }
+
     ServerParams server;
   };
 }

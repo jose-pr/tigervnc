@@ -47,5 +47,15 @@ namespace rfb {
   const int msgTypeSetDesktopSize = 251;
 
   const int msgTypeQEMUClientMessage = 255;
+
+  // Same numeric value, opposite direction. RFB message type 255 is
+  // multiplexed by QEMU's own vendor extension (qemuTypes.h) rather than
+  // being direction-specific like every other message type here -- a
+  // server sends type 255 for e.g. audio data, a client sends type 255
+  // for e.g. an extended key event, and only the QEMU submessage id
+  // inside the payload (not this outer type) says which. Named
+  // separately so a reader/writer for each direction states its intent,
+  // even though the two constants are numerically identical.
+  const int msgTypeQEMUServerMessage = 255;
 }
 #endif

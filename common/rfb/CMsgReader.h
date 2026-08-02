@@ -26,6 +26,8 @@
 
 #include <stdint.h>
 
+#include <vector>
+
 #include <core/Rect.h>
 
 namespace rdr { class InStream; }
@@ -73,6 +75,18 @@ namespace rfb {
     bool readLEDState();
     bool readVMwareLEDState();
 
+    // Message type 255 (msgTypeQEMUServerMessage): reads the QEMU
+    // submessage id and 2-byte operation, then hands the remaining
+    // bytes to CMsgHandler::handleQEMUServerMessage() as an opaque
+    // blob -- this class does not know what a `qemuAudio` operation
+    // means, only how to keep it framed correctly on the wire. Returns
+    // false (same convention as readFramebufferUpdate()'s rect loop)
+    // when the payload hasn't fully arrived yet; readMsg() re-enters via
+    // MSGSTATE_QEMU_DATA on the next call rather than blocking, since a
+    // read here can be interrupted by the same non-blocking-with-timeout
+    // socket every other reader in this class already assumes.
+    bool readQEMUServerMessage();
+
   private:
     CMsgHandler* handler;
     rdr::InStream* is;
@@ -82,6 +96,7 @@ namespace rfb {
       MSGSTATE_MESSAGE,
       MSGSTATE_RECT_HEADER,
       MSGSTATE_RECT_DATA,
+      MSGSTATE_QEMU_DATA,
     };
 
     stateEnum state;
@@ -92,6 +107,15 @@ namespace rfb {
     int rectEncoding;
 
     int cursorEncoding;
+
+    // Set by readQEMUServerMessage() while buffering a payload that
+    // didn't arrive in one read; consumed by the same function on
+    // re-entry. Mirrors nUpdateRectsLeft's role for framebuffer rects,
+    // one state variable per interruptible multi-read message type.
+    uint8_t qemuSubMsgType;
+    uint16_t qemuOperation;
+    std::vector<uint8_t> qemuPayload;
+    uint32_t qemuPayloadLeft;
 
     static const int maxCursorSize = 256;
   };

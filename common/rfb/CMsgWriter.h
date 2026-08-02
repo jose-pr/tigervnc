@@ -69,6 +69,17 @@ namespace rfb {
     void writeClipboardProvide(uint32_t flags, const size_t* lengths,
                                const uint8_t* const* data);
 
+    // QEMU's audio extension (message type 255, qemuTypes.h's qemuAudio
+    // submessage), client -> server direction. Enable/disable carry no
+    // payload beyond the 3-byte header; SetFormat's fields match QEMU's
+    // own wire layout (U8 sample format code, U8 channel count, U32
+    // frequency in Hz). Choosing a format code is the caller's business:
+    // this extension carries uncompressed PCM only, so the codes select
+    // sample width, signedness and endianness, never a codec.
+    void writeQEMUAudioEnable(bool enable);
+    void writeQEMUAudioSetFormat(uint8_t sampleFormat, uint8_t channels,
+                                 uint32_t frequency);
+
   protected:
     void startMsg(int type);
     void endMsg();

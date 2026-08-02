@@ -297,6 +297,14 @@ namespace rfb {
     bool supportsCursorPosition;
     bool supportsDesktopResize;
     bool supportsLEDState;
+    // QEMU's audio extension. Off by default like the others, but for a
+    // different reason than "not implemented yet": advertising it costs
+    // the server nothing it does not already ignore, so the decision is
+    // not about protocol risk. A subclass must still leave it off unless
+    // it has somewhere to deliver decoded PCM and the user has opted in
+    // -- advertising an extension whose data is then discarded makes the
+    // server encode audio nobody hears.
+    bool supportsAudio;
 
   private:
     bool processVersionMsg();
