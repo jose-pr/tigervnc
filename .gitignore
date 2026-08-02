@@ -4,6 +4,8 @@
 *.lo
 .deps
 .libs
+/build*/
+/.agents/
 
 CMakeFiles
 CMakeCache.txt
@@ -13,3 +15,7 @@ config.h
 cmake_install.cmake
 cmake_uninstall.cmake
 install_manifest.txt
+
+# Build output. Underscore-prefixed to match the workspace convention:
+# a plain name is source, an underscore is machinery.
+/_build/
