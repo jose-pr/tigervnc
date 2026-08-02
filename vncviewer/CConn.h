@@ -28,6 +28,7 @@
 
 namespace network { class Socket; }
 
+class AudioOutput;
 class DesktopWindow;
 
 class CConn : public rfb::CConnection
@@ -85,6 +86,12 @@ protected:
   void handleClipboardAnnounce(bool available) override;
   void handleClipboardData(const char* data) override;
 
+  bool getAudioFormat(uint8_t* sampleFormat, uint8_t* channels,
+                      uint32_t* frequency) override;
+  void handleAudioBegin() override;
+  void handleAudioEnd() override;
+  void handleAudioData(const uint8_t* data, size_t length) override;
+
 private:
 
   void resizeFramebuffer() override;
@@ -105,6 +112,8 @@ private:
   core::MethodTimer<CConn> msgTimer;
 
   DesktopWindow *desktop;
+
+  AudioOutput *audioOutput;
 
   unsigned updateCount;
   unsigned pixelCount;
