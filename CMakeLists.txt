@@ -435,12 +435,15 @@ include(cmake/StaticBuild.cmake)
 
 add_subdirectory(common)
 
-if(WIN32)
-  add_subdirectory(win)
-else()
-  # No interest in building x related parts on Apple
-  if(NOT APPLE)
-    add_subdirectory(unix)
+option(BUILD_SERVER "Build the platform-specific VNC server components" ON)
+if(BUILD_SERVER)
+  if(WIN32)
+    add_subdirectory(win)
+  else()
+    # No interest in building x related parts on Apple
+    if(NOT APPLE)
+      add_subdirectory(unix)
+    endif()
   endif()
 endif()
 
