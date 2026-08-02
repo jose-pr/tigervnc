@@ -26,6 +26,8 @@
 
 #include <sys/time.h>
 
+#include <core/compiler.h>
+
 #include <FL/Fl_Window.H>
 
 namespace rfb { class ModifiablePixelBuffer; }

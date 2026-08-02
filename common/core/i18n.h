@@ -58,6 +58,8 @@ extern int swprintf (wchar_t *, size_t, const wchar_t *, ...)
   /* __attribute__((__format__ (__wprintf__, 3, 4))) */;
 #endif
 
+#include <core/compiler.h>
+
 #define _(String) gettext (String)
 #define C_(Context, String) pgettext (Context, String)
 #define N_(String) gettext_noop (String)
@@ -81,31 +83,31 @@ extern "C" {
 #endif
 
 const char *dgettext_rfb(const char *domainname, const char *msgid)
-                         __attribute__ ((format_arg (2)));
+                         CORE_FORMAT_ARG(2);
 const char *dcgettext_rfb(const char *domainname, const char *msgid,
                           int category)
-                          __attribute__ ((format_arg (2)));
+                          CORE_FORMAT_ARG(2);
 const char *dngettext_rfb(const char *domainname, const char *msgid,
                           const char *msgid_plural,
                           unsigned long int n)
-                          __attribute__ ((format_arg (2)))
-                          __attribute__ ((format_arg (3)));
+                          CORE_FORMAT_ARG(2)
+                          CORE_FORMAT_ARG(3);
 const char *dcngettext_rfb(const char *domainname, const char *msgid,
                            const char *msgid_plural,
                            unsigned long int n, int category)
-                          __attribute__ ((format_arg (2)))
-                          __attribute__ ((format_arg (3)));
+                          CORE_FORMAT_ARG(2)
+                          CORE_FORMAT_ARG(3);
 
 const char *pgettext_rfb(const char *domain,
                          const char *msg_ctxt_id, const char *msgid,
                          int category)
-                         __attribute__ ((format_arg (3)));
+                         CORE_FORMAT_ARG(3);
 const char *npgettext_rfb(const char *domain,
                           const char *msg_ctxt_id, const char *msgid,
                           const char *msgid_plural,
                           unsigned long int n, int category)
-                          __attribute__ ((format_arg (3)))
-                          __attribute__ ((format_arg (4)));
+                          CORE_FORMAT_ARG(3)
+                          CORE_FORMAT_ARG(4);
 
 #ifdef __cplusplus
 }

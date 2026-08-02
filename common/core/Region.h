@@ -25,6 +25,7 @@
 #include <vector>
 
 #include <core/Rect.h>
+#include <core/compiler.h>
 
 struct pixman_region16;
 
@@ -58,11 +59,11 @@ namespace core {
     // the following three operations return a new region:
 
     Region intersect(const Region& r) const
-      __attribute__ ((warn_unused_result));
+      CORE_WARN_UNUSED_RESULT;
     Region union_(const Region& r) const
-      __attribute__ ((warn_unused_result));
+      CORE_WARN_UNUSED_RESULT;
     Region subtract(const Region& r) const
-      __attribute__ ((warn_unused_result));
+      CORE_WARN_UNUSED_RESULT;
 
     bool operator==(const Region& b) const;
     bool operator!=(const Region& b) const;

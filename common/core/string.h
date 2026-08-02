@@ -29,11 +29,13 @@
 #include <string>
 #include <vector>
 
+#include <core/compiler.h>
+
 namespace core {
 
   // Formats according to printf(), with a dynamic allocation
   std::string format(const char *fmt, ...)
-      __attribute__((__format__ (__printf__, 1, 2)));
+      CORE_FORMAT_PRINTF(1, 2);
 
   // Splits a string with the specified delimiter
   std::vector<std::string> split(const char* src,

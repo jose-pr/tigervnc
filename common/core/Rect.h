@@ -23,6 +23,8 @@
 
 #include <algorithm>
 
+#include <core/compiler.h>
+
 namespace core {
 
   // core::Point
@@ -38,15 +40,15 @@ namespace core {
     Point() : x(0), y(0) {}
     Point(int x_, int y_) : x(x_), y(y_) {}
     inline Point negate() const
-      __attribute__ ((warn_unused_result))
+      CORE_WARN_UNUSED_RESULT
       {return Point(-x, -y);}
     inline bool operator==(const Point &p) const {return x==p.x && y==p.y;}
     inline bool operator!=(const Point &p) const {return x!=p.x || y!=p.y;}
     inline Point translate(const Point &p) const
-      __attribute__ ((warn_unused_result))
+      CORE_WARN_UNUSED_RESULT
       {return Point(x+p.x, y+p.y);}
     inline Point subtract(const Point &p) const
-      __attribute__ ((warn_unused_result))
+      CORE_WARN_UNUSED_RESULT
       {return Point(x-p.x, y-p.y);}
     int x, y;
   };
@@ -70,7 +72,7 @@ namespace core {
       tl.x = x; tl.y = y; br.x = x+w; br.y = y+h;
     }
     inline Rect intersect(const Rect &r) const
-      __attribute__ ((warn_unused_result))
+      CORE_WARN_UNUSED_RESULT
     {
       Rect result;
       result.tl.x = std::max(tl.x, r.tl.x);
@@ -80,7 +82,7 @@ namespace core {
       return result;
     }
     inline Rect union_boundary(const Rect &r) const
-      __attribute__ ((warn_unused_result))
+      CORE_WARN_UNUSED_RESULT
     {
       if (r.is_empty()) return *this;
       if (is_empty()) return r;
@@ -92,7 +94,7 @@ namespace core {
       return result;
     }
     inline Rect translate(const Point &p) const
-      __attribute__ ((warn_unused_result))
+      CORE_WARN_UNUSED_RESULT
     {
       return Rect(tl.translate(p), br.translate(p));
     }
