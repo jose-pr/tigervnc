@@ -35,8 +35,8 @@ endif()
 
 option(INSTALL_SYSTEMD_UNITS "Install TigerVNC systemd units" ON)
 
-if(MSVC)
-  message(FATAL_ERROR "TigerVNC cannot be built with Visual Studio.  Please use MinGW")
+if(MSVC AND NOT ALLOW_MSVC_EXPERIMENTAL)
+  message(FATAL_ERROR "TigerVNC cannot be built with Visual Studio.  Please use MinGW (or pass -DALLOW_MSVC_EXPERIMENTAL=ON to try anyway)")
 endif()
 
 if(NOT BUILD_TIMESTAMP)
@@ -67,27 +67,36 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 # Enable debug friendly optimizations for debug builds
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
+# (GCC/Clang-only spelling; MSVC's own /RTC1 default conflicts with it — see
+# "D8016: '/RTC1' and '/Og' command-line options are incompatible")
+if(NOT MSVC)
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Og")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Og")
+endif()
 
-# Make sure we get a sane C and C++ version
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+# These are GCC/Clang-only flag spellings; MSVC's cl.exe rejects them outright
+# (e.g. "D8021: invalid numeric argument '/Wextra'"), so keep the whole GNU-style
+# stringency stanza out of MSVC builds and rely on CMake's own MSVC defaults.
+if(NOT MSVC)
+  # Make sure we get a sane C and C++ version
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 
-# Tell the compiler to be stringent
-add_compile_definitions(_FORTIFY_SOURCE=2)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wformat=2 -Wvla")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2 -Wvla")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wzero-as-null-pointer-constant")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-override")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
-# Make sure we catch these issues whilst developing
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror")
-# clang doesn't support format_arg, which breaks this warning
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-nonliteral -Wno-format-security")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral -Wno-format-security")
+  # Tell the compiler to be stringent
+  add_compile_definitions(_FORTIFY_SOURCE=2)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wformat=2 -Wvla")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wformat=2 -Wvla")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wzero-as-null-pointer-constant")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wsuggest-override")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wshadow")
+  # Make sure we catch these issues whilst developing
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror")
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror")
+  # clang doesn't support format_arg, which breaks this warning
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-format-nonliteral -Wno-format-security")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-nonliteral -Wno-format-security")
+  endif()
 endif()
 
 option(ENABLE_ASAN "Enable address sanitizer support" OFF)
@@ -103,8 +112,12 @@ if(ENABLE_TSAN AND NOT WIN32 AND NOT APPLE AND CMAKE_SIZEOF_VOID_P MATCHES 8)
 endif()
 
 if(MSVC)
-  # undef min and max macro
-  target_compile_definitions(rfb PRIVATE NOMINMAX)
+  # undef min and max macro -- global, not per-target: the "rfb" target
+  # doesn't exist yet at this point in the file (add_subdirectory(common)
+  # runs later), so target_compile_definitions(rfb ...) here always failed;
+  # this MSVC branch was untestable before the hard MSVC gate above was
+  # relaxed, so the ordering bug was never caught.
+  add_compile_definitions(NOMINMAX)
 endif()
 
 if(NOT DEFINED BUILD_WINVNC)
@@ -121,6 +134,12 @@ endif()
 # Minimum version is Windows 7
 if(WIN32)
   add_definitions(-D_WIN32_WINNT=0x0601)
+  # Without this, <windows.h> pulls in the legacy <winsock.h>, which then
+  # conflicts with <winsock2.h> wherever both end up included in the same
+  # translation unit regardless of include order (duplicate struct/function
+  # definitions with "different linkage"). MinGW builds never hit this since
+  # mingw's own <windows.h> already defines this by default.
+  add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif()
 
 # Legacy macros (macOS 10.12 and older) conflict with our code
@@ -285,7 +304,9 @@ if(BUILD_VIEWER)
   endif()
 
   if(FLTK_FOUND)
-    set(CMAKE_REQUIRED_FLAGS "-Wno-error")
+    if(NOT MSVC)
+      set(CMAKE_REQUIRED_FLAGS "-Wno-error")
+    endif()
     set(CMAKE_REQUIRED_INCLUDES ${FLTK_INCLUDE_DIR})
     set(CMAKE_REQUIRED_LIBRARIES ${FLTK_LIBRARIES})
 
