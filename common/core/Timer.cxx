@@ -30,6 +30,7 @@
 
 #include <core/LogWriter.h>
 #include <core/Timer.h>
+#include <core/os.h>
 #include <core/time.h>
 
 using namespace core;

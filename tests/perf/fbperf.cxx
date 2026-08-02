@@ -33,6 +33,7 @@
 
 #include "../vncviewer/PlatformPixelBuffer.h"
 
+#include <core/os.h>
 #include "util.h"
 
 class TestWindow: public Fl_Window {

@@ -23,7 +23,11 @@
 
 #include <errno.h>
 #include <algorithm>
+#ifndef WIN32
 #include <libgen.h>
+#endif
+
+#include <core/os.h>
 
 // FIXME: Workaround for FLTK including windows.h
 #ifdef WIN32

@@ -50,6 +50,7 @@
 #endif
 
 #include <core/LogWriter.h>
+#include <core/os.h>
 #include <core/time.h>
 
 #include <rfb/Congestion.h>

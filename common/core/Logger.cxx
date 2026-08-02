@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <core/os.h>
 #include <core/Logger.h>
 #include <core/LogWriter.h>
 #include <core/i18n.h>

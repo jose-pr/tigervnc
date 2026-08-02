@@ -37,6 +37,7 @@
 #include <rfb/CMsgWriter.h>
 #include <rfb/ScreenSet.h>
 
+#include <core/os.h>
 #include "DesktopWindow.h"
 #include "OptionsDialog.h"
 #include "parameters.h"

@@ -52,6 +52,7 @@
 #include <rfb/SConnection.h>
 #include <rfb/SMsgWriter.h>
 
+#include <core/os.h>
 #include "util.h"
 
 static core::IntParameter width("width", "Frame buffer width", 0);

@@ -30,12 +30,14 @@
 #include <signal.h>
 #include <locale.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/stat.h>
 
 #ifdef WIN32
 #include <core/winerrno.h>
 #include <direct.h>
+#include <io.h> // _open_osfhandle
+#else
+#include <unistd.h>
 #endif
 
 #include <core/Exception.h>

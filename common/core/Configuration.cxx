@@ -36,6 +36,7 @@
 #include <core/Configuration.h>
 #include <core/LogWriter.h>
 #include <core/i18n.h>
+#include <core/os.h>
 #include <core/string.h>
 
 #include <rdr/HexOutStream.h>

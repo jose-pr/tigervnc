@@ -32,6 +32,7 @@
 #include <Carbon/Carbon.h>
 #endif
 
+#include <core/os.h>
 #include <core/i18n.h>
 
 // Restore original functions

@@ -22,6 +22,8 @@
 
 #include <sys/stat.h>
 
+#include <core/os.h>
+
 namespace core {
 
   /*

@@ -37,10 +37,13 @@
 #include <windows.h>
 #include <wininet.h> /* MinGW needs it */
 #include <shlobj.h>
+#include <direct.h> /* _mkdir */
 #define stat _stat
-#define mkdir(path, mode) mkdir(path)
+/* MSVC only provides _mkdir (no bare mkdir symbol at all, unlike mingw) */
+#define mkdir(path, mode) _mkdir(path)
 #endif
 
+#include <core/os.h>
 #include <core/xdgdirs.h>
 
 static const char* getvncdir(bool userDir, const char *xdg_env, const char *xdg_def)

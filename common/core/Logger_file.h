@@ -25,6 +25,7 @@
 #include <limits.h>
 
 #include <core/Logger.h>
+#include <core/os.h>
 
 namespace core {
 

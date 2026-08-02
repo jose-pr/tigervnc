@@ -24,6 +24,7 @@
 #include <stddef.h>
 #include <sys/time.h>
 
+#include <core/os.h>
 #include <core/time.h>
 
 namespace core {

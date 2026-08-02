@@ -39,7 +39,9 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 #include <core/Configuration.h>
 #include <core/Exception.h>

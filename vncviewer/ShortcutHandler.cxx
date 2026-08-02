@@ -25,6 +25,7 @@
 #define XK_MISCELLANY
 #include <rfb/keysymdef.h>
 
+#include <core/os.h>
 #include "ShortcutHandler.h"
 
 ShortcutHandler::ShortcutHandler() :

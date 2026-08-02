@@ -22,6 +22,7 @@
 
 #include <string.h>
 
+#include <core/os.h>
 #include <core/i18n.h>
 
 #include <rfb/encodings.h>

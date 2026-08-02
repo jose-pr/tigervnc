@@ -44,6 +44,7 @@
 #include <sys/select.h>
 #endif
 
+#include <core/os.h>
 #include <core/Exception.h>
 #include <core/time.h>
 

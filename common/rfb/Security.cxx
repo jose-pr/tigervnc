@@ -27,6 +27,7 @@
 #include <stdexcept>
 
 #include <core/LogWriter.h>
+#include <core/os.h>
 #include <core/i18n.h>
 #include <core/string.h>
 

@@ -42,6 +42,7 @@
 #include <rfb/PixelBuffer.h>
 #include <rfb/PixelFormat.h>
 
+#include <core/os.h>
 #include "util.h"
 
 // FIXME: Files are always in this format
