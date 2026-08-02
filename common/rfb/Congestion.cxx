@@ -39,7 +39,11 @@
 
 #include <assert.h>
 #include <string.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #ifdef __linux__
 #include <sys/ioctl.h>

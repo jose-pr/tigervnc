@@ -21,7 +21,11 @@
 #endif
 
 #include <math.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>

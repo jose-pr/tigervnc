@@ -24,7 +24,11 @@
 #include <map>
 #include <string>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include <core/compiler.h>
 
@@ -88,9 +92,9 @@ public:
 
 private:
   void addOverlayTip(const char *text, ...)
-    __attribute__((__format__ (__printf__, 2, 3)));
+    CORE_FORMAT_PRINTF(2, 3);
   void addOverlayError(const char *text, ...)
-    __attribute__((__format__ (__printf__, 2, 3)));
+    CORE_FORMAT_PRINTF(2, 3);
   void addOverlay(const char *text);
   static void updateOverlay(void *data);
 

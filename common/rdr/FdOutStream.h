@@ -24,7 +24,11 @@
 #ifndef __RDR_FDOUTSTREAM_H__
 #define __RDR_FDOUTSTREAM_H__
 
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include <rdr/BufferedOutStream.h>
 

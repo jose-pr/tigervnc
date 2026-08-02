@@ -24,7 +24,11 @@
 #ifndef __RFB_VNCSERVERST_H__
 #define __RFB_VNCSERVERST_H__
 
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include <core/Timer.h>
 

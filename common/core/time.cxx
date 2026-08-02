@@ -22,7 +22,11 @@
 #endif
 
 #include <stddef.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include <core/os.h>
 #include <core/time.h>

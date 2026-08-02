@@ -27,7 +27,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include <core/LogWriter.h>
 #include <core/i18n.h>

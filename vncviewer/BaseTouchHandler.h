@@ -22,7 +22,11 @@
 
 #include "GestureEvent.h"
 
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/time.h>
+#endif
 
 class BaseTouchHandler {
   public:
