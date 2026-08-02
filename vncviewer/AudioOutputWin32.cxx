@@ -46,11 +46,17 @@ static const unsigned minStreamDelayMs = 20;
 
 // The one format we ask for. The device rarely supports it natively,
 // but WAVE_MAPPER converts, and a stream this narrow is not worth
-// resampling twice for. 44100 Hz is what the server defaults to, so in
-// the common case nothing has to convert at all.
+// resampling twice for.
+//
+// 48 kHz rather than 44.1 kHz, and that is deliberate: it is what #1478
+// settled on in its last commit, "Switched to 48 kHz output sample rate
+// ... to avoid downsampling in QEMU for modern Windows guests". QEMU
+// converts from whatever the GUEST produces, so asking for 48 kHz is what
+// spares the common guest a resample -- there is no server-side default
+// that 44.1 kHz would match.
 static const uint8_t preferredSampleFormat = rfb::qemuAudioFormatS16;
 static const uint8_t preferredChannels = 2;
-static const uint32_t preferredFrequency = 44100;
+static const uint32_t preferredFrequency = 48000;
 
 static void fillWaveFormat(WAVEFORMATEX* wfx, uint8_t sampleFormat,
                            uint8_t channels, uint32_t frequency)
