@@ -217,6 +217,8 @@ namespace rfb {
 
     void supportsQEMUKeyEvent() override;
 
+    void supportsQEMUAudio() override;
+
     void supportsExtendedMouseButtons() override;
 
     void serverInit(int width, int height, const PixelFormat& pf,
@@ -243,6 +245,10 @@ namespace rfb {
     void handleClipboardNotify(uint32_t flags) override;
     void handleClipboardProvide(uint32_t flags, const size_t* lengths,
                                 const uint8_t* const* data) override;
+
+    void handleQEMUServerMessage(uint8_t submessage, uint16_t operation,
+                                 const uint8_t* data,
+                                 size_t length) override;
 
 
     // Methods to be overridden in a derived class
@@ -278,6 +284,26 @@ namespace rfb {
     // server received the request.
     virtual void handleClipboardData(const char* data);
 
+    // getAudioFormat() is called once the server has indicated that it
+    // can send audio, to determine the format to ask for. It should
+    // return false if the client cannot play audio after all, in which
+    // case none will be requested. The sample format is one of the
+    // qemuAudioFormat* constants.
+    virtual bool getAudioFormat(uint8_t* sampleFormat, uint8_t* channels,
+                                uint32_t* frequency);
+
+    // handleAudioBegin() and handleAudioEnd() are called when the
+    // server starts and stops sending audio. There may be many such
+    // periods in a single session, as the server only sends audio
+    // whilst something is playing.
+    virtual void handleAudioBegin();
+    virtual void handleAudioEnd();
+
+    // handleAudioData() is called with a chunk of samples, in the
+    // format previously agreed. Note that a chunk is not aligned to
+    // anything in particular, and may even be empty.
+    virtual void handleAudioData(const uint8_t* data, size_t length);
+
   protected:
     CSecurity *csecurity;
     SecurityClient security;
@@ -297,8 +323,14 @@ namespace rfb {
     bool supportsCursorPosition;
     bool supportsDesktopResize;
     bool supportsLEDState;
+    // Unlike the others, leaving this off is not just a matter of
+    // ignoring something the server sends anyway. The server will
+    // encode and send audio purely because we asked for it, so do not
+    // ask unless there is somewhere for it to go.
+    bool supportsAudio;
 
   private:
+    void requestAudio();
     bool processVersionMsg();
     bool processSecurityTypesMsg();
     bool processSecurityMsg();
@@ -345,6 +377,8 @@ namespace rfb {
     bool hasRemoteClipboard;
     bool hasLocalClipboard;
     bool unsolicitedClipboardAttempt;
+
+    bool audioRequested;
 
     struct DownKey {
         uint32_t keyCode;

@@ -34,6 +34,7 @@
 #include <rdr/ZlibInStream.h>
 
 #include <rfb/msgTypes.h>
+#include <rfb/qemuTypes.h>
 #include <rfb/clipboardTypes.h>
 #include <rfb/Exception.h>
 #include <rfb/CMsgHandler.h>
@@ -48,6 +49,11 @@ static core::IntParameter maxCutText("MaxCutText",
                                      _("Maximum permitted length of an "
                                        "incoming clipboard update"),
                                      256*1024, 0, INT_MAX);
+
+// The protocol allows any 32 bit length here, but a server has no
+// reason to send more than a fraction of a second of audio at a time,
+// and we have to be able to buffer whatever we accept.
+static const uint32_t maxAudioData = 1024*1024;
 
 using namespace rfb;
 
@@ -94,6 +100,48 @@ bool CMsgReader::readServerInit()
   return true;
 }
 
+bool CMsgReader::readQEMUServerMessage()
+{
+  uint8_t submessage;
+  uint16_t operation;
+  uint32_t length;
+
+  if (!is->hasData(1 + 2))
+    return false;
+
+  is->setRestorePoint();
+
+  submessage = is->readU8();
+  operation = is->readU16();
+
+  // Only audio data has a payload. Everything else is fixed size, and
+  // there is no generic length field we could use to skip an operation
+  // we do not know about.
+  if ((submessage != qemuAudio) || (operation != msgFromQemuAudioData)) {
+    is->clearRestorePoint();
+    handler->handleQEMUServerMessage(submessage, operation, nullptr, 0);
+    return true;
+  }
+
+  if (!is->hasDataOrRestore(4))
+    return false;
+
+  length = is->readU32();
+  if (length > maxAudioData)
+    throw protocol_error(_("Audio data is too large"));
+
+  if (!is->hasDataOrRestore(length))
+    return false;
+
+  is->clearRestorePoint();
+
+  handler->handleQEMUServerMessage(submessage, operation,
+                                   is->getptr(length), length);
+  is->skip(length);
+
+  return true;
+}
+
 bool CMsgReader::readMsg()
 {
   if (state == MSGSTATE_IDLE) {
@@ -125,6 +173,9 @@ bool CMsgReader::readMsg()
       break;
     case msgTypeEndOfContinuousUpdates:
       ret = readEndOfContinuousUpdates();
+      break;
+    case msgTypeQEMUServerMessage:
+      ret = readQEMUServerMessage();
       break;
     default:
       throw protocol_error(
@@ -209,6 +260,10 @@ bool CMsgReader::readMsg()
       break;
     case pseudoEncodingQEMUKeyEvent:
       handler->supportsQEMUKeyEvent();
+      ret = true;
+      break;
+    case pseudoEncodingQEMUAudio:
+      handler->supportsQEMUAudio();
       ret = true;
       break;
     case pseudoEncodingExtendedMouseButtons:

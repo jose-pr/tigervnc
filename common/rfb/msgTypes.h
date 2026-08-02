@@ -47,5 +47,12 @@ namespace rfb {
   const int msgTypeSetDesktopSize = 251;
 
   const int msgTypeQEMUClientMessage = 255;
+
+  // Same number, opposite direction. Unlike every other message type
+  // here, 255 is not direction specific: QEMU multiplexes both halves
+  // of its extension on it, and only the submessage id inside says
+  // which. Named separately so that a reader and a writer each state
+  // their intent.
+  const int msgTypeQEMUServerMessage = 255;
 }
 #endif

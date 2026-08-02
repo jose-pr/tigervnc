@@ -34,6 +34,7 @@
 #include <rfb/Exception.h>
 #include <rfb/clipboardTypes.h>
 #include <rfb/fenceTypes.h>
+#include <rfb/qemuTypes.h>
 #include <rfb/screenTypes.h>
 #include <rfb/CMsgReader.h>
 #include <rfb/CMsgWriter.h>
@@ -65,6 +66,7 @@ CConnection::CConnection()
   : csecurity(nullptr),
     supportsLocalCursor(false), supportsCursorPosition(false),
     supportsDesktopResize(false), supportsLEDState(false),
+    supportsAudio(false),
     is(nullptr), os(nullptr), reader_(nullptr), writer_(nullptr),
     shared(false),
     state_(RFBSTATE_UNINITIALISED),
@@ -74,7 +76,8 @@ CConnection::CConnection()
     firstUpdate(true), pendingUpdate(false), continuousUpdates(false),
     forceNonincremental(true),
     framebuffer(nullptr), decoder(this),
-    hasRemoteClipboard(false), hasLocalClipboard(false)
+    hasRemoteClipboard(false), hasLocalClipboard(false),
+    audioRequested(false)
 {
 }
 
@@ -514,6 +517,11 @@ void CConnection::supportsQEMUKeyEvent()
   server.supportsQEMUKeyEvent = true;
 }
 
+void CConnection::supportsQEMUAudio()
+{
+  server.supportsQEMUAudio = true;
+}
+
 void CConnection::supportsExtendedMouseButtons()
 {
   server.supportsExtendedMouseButtons = true;
@@ -588,6 +596,63 @@ void CConnection::framebufferUpdateEnd()
     }
 
     firstUpdate = false;
+  }
+
+  // The server tells us it can send audio by sending us a rectangle
+  // with that pseudo encoding, so this is the earliest point at which
+  // we can safely ask for it
+  if (server.supportsQEMUAudio && !audioRequested)
+    requestAudio();
+}
+
+void CConnection::requestAudio()
+{
+  uint8_t sampleFormat, channels;
+  uint32_t frequency;
+
+  assert(!audioRequested);
+
+  // Only ask once, whatever the answer. A server that offered audio
+  // and then had it declined will not offer it again.
+  audioRequested = true;
+
+  if (!getAudioFormat(&sampleFormat, &channels, &frequency))
+    return;
+
+  vlog.info(_("Requesting audio (format %d, %d channels, %d Hz)"),
+            (int)sampleFormat, (int)channels, (int)frequency);
+
+  writer()->writeQEMUAudioSetFormat(sampleFormat, channels, frequency);
+  writer()->writeQEMUAudioEnable(true);
+}
+
+void CConnection::handleQEMUServerMessage(uint8_t submessage,
+                                          uint16_t operation,
+                                          const uint8_t* data,
+                                          size_t length)
+{
+  if (submessage != qemuAudio) {
+    vlog.debug("Ignoring unknown QEMU submessage %d", (int)submessage);
+    return;
+  }
+
+  // A server that never got a request for audio has no business
+  // sending any
+  if (!server.supportsQEMUAudio)
+    throw protocol_error(_("Unexpected audio message"));
+
+  switch (operation) {
+  case msgFromQemuAudioBegin:
+    handleAudioBegin();
+    break;
+  case msgFromQemuAudioEnd:
+    handleAudioEnd();
+    break;
+  case msgFromQemuAudioData:
+    handleAudioData(data, length);
+    break;
+  default:
+    vlog.debug("Ignoring unknown QEMU audio operation %d", (int)operation);
   }
 }
 
@@ -739,6 +804,26 @@ void CConnection::handleClipboardAnnounce(bool /*available*/)
 }
 
 void CConnection::handleClipboardData(const char* /*data*/)
+{
+}
+
+bool CConnection::getAudioFormat(uint8_t* /*sampleFormat*/,
+                                 uint8_t* /*channels*/,
+                                 uint32_t* /*frequency*/)
+{
+  return false;
+}
+
+void CConnection::handleAudioBegin()
+{
+}
+
+void CConnection::handleAudioEnd()
+{
+}
+
+void CConnection::handleAudioData(const uint8_t* /*data*/,
+                                  size_t /*length*/)
 {
 }
 
@@ -1020,6 +1105,9 @@ void CConnection::updateEncodings()
   if (supportsLEDState) {
     encodings.push_back(pseudoEncodingLEDState);
     encodings.push_back(pseudoEncodingVMwareLEDState);
+  }
+  if (supportsAudio) {
+    encodings.push_back(pseudoEncodingQEMUAudio);
   }
 
   encodings.push_back(pseudoEncodingDesktopName);

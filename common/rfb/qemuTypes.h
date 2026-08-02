@@ -21,5 +21,26 @@
 namespace rfb {
   const int qemuExtendedKeyEvent = 0;
   const int qemuAudio = 1;
+
+  // Operations within the audio submessage. The two directions have
+  // separate numbering, as QEMU's own ui/vnc.c does.
+
+  const int msgFromQemuAudioEnd = 0;
+  const int msgFromQemuAudioBegin = 1;
+  const int msgFromQemuAudioData = 2;
+
+  const int msgToQemuEnableAudio = 0;
+  const int msgToQemuDisableAudio = 1;
+  const int msgToQemuSetAudioFormat = 2;
+
+  // Sample formats for msgToQemuSetAudioFormat. The extension carries
+  // uncompressed PCM only, so these select width, signedness and (for
+  // the wider ones) host endianness, never a codec.
+  const int qemuAudioFormatU8 = 0;
+  const int qemuAudioFormatS8 = 1;
+  const int qemuAudioFormatU16 = 2;
+  const int qemuAudioFormatS16 = 3;
+  const int qemuAudioFormatU32 = 4;
+  const int qemuAudioFormatS32 = 5;
 }
 #endif

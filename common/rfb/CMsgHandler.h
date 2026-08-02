@@ -56,6 +56,7 @@ namespace rfb {
                        const uint8_t data[]) = 0;
     virtual void endOfContinuousUpdates() = 0;
     virtual void supportsQEMUKeyEvent() = 0;
+    virtual void supportsQEMUAudio() = 0;
     virtual void supportsExtendedMouseButtons() = 0;
     virtual void serverInit(int width, int height,
                             const PixelFormat& pf,
@@ -83,6 +84,16 @@ namespace rfb {
     virtual void handleClipboardProvide(uint32_t flags,
                                         const size_t* lengths,
                                         const uint8_t* const* data) = 0;
+
+    // A submessage of QEMU's vendor extension, with the payload that
+    // follows the operation code, if any. The submessage is left
+    // undecoded here as QEMU multiplexes several unrelated things on
+    // this message type, and only some of them concern any given
+    // handler.
+    virtual void handleQEMUServerMessage(uint8_t submessage,
+                                         uint16_t operation,
+                                         const uint8_t* data,
+                                         size_t length) = 0;
 
     ServerParams server;
   };
