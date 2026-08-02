@@ -131,17 +131,38 @@ static void initTranslations()
   bind_textdomain_codeset("libc", "UTF-8");
 }
 
+/*
+ * When ENABLE_NLS is off, gettext.h's own dgettext/dcgettext/dngettext/
+ * dcngettext fallbacks are plain macros (not real functions), and those
+ * macros were already permanently clobbered by core/i18n.h's earlier
+ * "#define dgettext dgettext_rfb"-style aliasing (used to redirect the
+ * rest of the codebase's calls here) -- a #undef can't restore a macro's
+ * prior definition, only remove the current one. So with NLS disabled
+ * there is nothing left upstream to call into; implement the same
+ * pass-through semantics gettext.h itself would have, directly.
+ */
+
 const char *dgettext_rfb(const char *domainname, const char *msgid)
 {
   initTranslations();
+#if defined ENABLE_NLS && ENABLE_NLS
   return dgettext(domainname, msgid);
+#else
+  (void)domainname;
+  return msgid;
+#endif
 }
 
 const char *dcgettext_rfb(const char *domainname, const char *msgid,
                           int category)
 {
   initTranslations();
+#if defined ENABLE_NLS && ENABLE_NLS
   return dcgettext(domainname, msgid, category);
+#else
+  (void)domainname; (void)category;
+  return msgid;
+#endif
 }
 
 const char *dngettext_rfb(const char *domainname, const char *msgid,
@@ -149,7 +170,12 @@ const char *dngettext_rfb(const char *domainname, const char *msgid,
                           unsigned long int n)
 {
   initTranslations();
+#if defined ENABLE_NLS && ENABLE_NLS
   return dngettext(domainname, msgid, msgid_plural, n);
+#else
+  (void)domainname;
+  return (n == 1) ? msgid : msgid_plural;
+#endif
 }
 
 const char *dcngettext_rfb(const char *domainname, const char *msgid,
@@ -157,7 +183,12 @@ const char *dcngettext_rfb(const char *domainname, const char *msgid,
                            unsigned long int n, int category)
 {
   initTranslations();
+#if defined ENABLE_NLS && ENABLE_NLS
   return dcngettext(domainname, msgid, msgid_plural, n, category);
+#else
+  (void)domainname; (void)category;
+  return (n == 1) ? msgid : msgid_plural;
+#endif
 }
 
 const char *pgettext_rfb(const char *domain,
