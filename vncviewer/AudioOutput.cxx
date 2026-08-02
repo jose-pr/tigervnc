@@ -24,18 +24,24 @@
 
 #include "AudioOutput.h"
 
+#ifdef HAVE_AUDIO
 #ifdef WIN32
 #include "AudioOutputWin32.h"
+typedef AudioOutputWin32 AudioOutputPlatform;
+#else
+#include "AudioOutputPulse.h"
+typedef AudioOutputPulse AudioOutputPlatform;
+#endif
 #endif
 
 static core::LogWriter vlog("AudioOutput");
 
 AudioOutput* AudioOutput::create()
 {
-#ifdef WIN32
-  AudioOutputWin32* audio;
+#ifdef HAVE_AUDIO
+  AudioOutputPlatform* audio;
 
-  audio = new AudioOutputWin32();
+  audio = new AudioOutputPlatform();
   if (!audio->isAvailable()) {
     delete audio;
     vlog.info("No audio playback device available");
