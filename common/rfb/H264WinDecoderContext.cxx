@@ -36,10 +36,18 @@
 
 using namespace rfb;
 
-// Older MinGW lacks this definition
-#ifndef HAVE_VIDEO_PROCESSOR_MFT
-static GUID CLSID_VideoProcessorMFT = { 0x88753b26, 0x5b24, 0x49bd, { 0xb2, 0xe7, 0xc, 0x44, 0x5c, 0x78, 0xc9, 0x82 } };
-#endif
+/*
+ * CLSID_VideoProcessorMFT's GUID data ships in wmcodecdspuuid.lib
+ * regardless of target, but recent Windows SDKs (mfidl.h) only *declare*
+ * it when building against WINVER < _WIN32_WINNT_WINTHRESHOLD (i.e. pre-
+ * Windows-10); above that the declaration is removed from the header even
+ * though the linkable symbol still exists. Older MinGW headers never
+ * declared it either. Use our own name unconditionally instead of trying
+ * to detect header visibility (CMake's check_variable_exists only tests
+ * linkability, not header visibility, so it can't tell the two cases
+ * apart -- see CMakeLists.txt history).
+ */
+static const GUID kCLSID_VideoProcessorMFT = { 0x88753b26, 0x5b24, 0x49bd, { 0xb2, 0xe7, 0xc, 0x44, 0x5c, 0x78, 0xc9, 0x82 } };
 
 H264WinDecoderContext::H264WinDecoderContext(const core::Rect &r)
   : H264DecoderContext(r)
@@ -50,7 +58,7 @@ H264WinDecoderContext::H264WinDecoderContext(const core::Rect &r)
   if (FAILED(CoCreateInstance(CLSID_CMSH264DecoderMFT, nullptr, CLSCTX_INPROC_SERVER, IID_IMFTransform, (LPVOID*)&decoder)))
     throw std::runtime_error(_("Could not find video codec"));
 
-  if (FAILED(CoCreateInstance(CLSID_VideoProcessorMFT, nullptr, CLSCTX_INPROC_SERVER, IID_IMFTransform, (LPVOID*)&converter)))
+  if (FAILED(CoCreateInstance(kCLSID_VideoProcessorMFT, nullptr, CLSCTX_INPROC_SERVER, IID_IMFTransform, (LPVOID*)&converter)))
   {
     if (FAILED(CoCreateInstance(CLSID_CColorConvertDMO, nullptr, CLSCTX_INPROC_SERVER, IID_IMFTransform, (LPVOID*)&converter)))
     {
