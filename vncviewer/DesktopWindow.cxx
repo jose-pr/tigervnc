@@ -23,6 +23,13 @@
 
 #include <algorithm>
 
+/*
+ * MSVC only recognizes the and/or/not alternative operator tokens via this
+ * standard header; GCC/Clang support them natively and treat this as a
+ * no-op, so it's safe to include unconditionally.
+ */
+#include <ciso646>
+
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
