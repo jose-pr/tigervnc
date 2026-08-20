@@ -39,7 +39,14 @@ WIDTH, HEIGHT, NAME = 640, 480, b"qemu-audio-bench"
 def rx(sock, n):
     buf = bytearray()
     while len(buf) < n:
-        chunk = sock.recv(n - len(buf))
+        try:
+            chunk = sock.recv(n - len(buf))
+        except socket.timeout:
+            # Only the first byte of a message says "nothing to read"; a
+            # timeout part way through one just means it arrived split.
+            if buf:
+                continue
+            raise
         if not chunk:
             raise ConnectionError(f"peer closed after {len(buf)} of {n} bytes")
         buf += chunk
@@ -76,22 +83,31 @@ def sine(phase, frames, freq, rate, channels, amp):
 def serve(conn, args):
     handshake(conn)
     enabled, negotiated, sent, phase, deadline = False, None, 0, 0.0, None
-    conn.settimeout(0.2)
+    next_send = None
+    conn.settimeout(0.05)
 
     while True:
         if deadline is not None and time.monotonic() >= deadline:
             break
-        try:
-            t = rx(conn, 1)[0]
-        except socket.timeout:
-            if enabled:                                  # idle: stream audio
-                payload, phase = sine(phase, args.rate // 20, args.frequency,
+
+        # Stream on a clock rather than only when the client falls silent: a
+        # client that keeps asking for framebuffer updates never leaves a gap.
+        if enabled:
+            now = time.monotonic()
+            if next_send is None:
+                next_send, deadline = now, now + args.seconds
+            while now >= next_send:
+                frames = args.rate // 20
+                payload, phase = sine(phase, frames, args.frequency,
                                       args.rate, args.channels, args.amplitude)
                 conn.sendall(struct.pack(">BBHI", MSG_QEMU_SERVER, SUBMSG_AUDIO,
                                          AUDIO_DATA, len(payload)) + payload)
                 sent += len(payload)
-                if deadline is None:
-                    deadline = time.monotonic() + args.seconds
+                next_send += frames / float(args.rate)
+
+        try:
+            t = rx(conn, 1)[0]
+        except socket.timeout:
             continue
         except (ConnectionError, OSError):
             break
