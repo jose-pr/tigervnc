@@ -1,0 +1,2592 @@
+diff --git a/SMP/config.h b/SMP/config.h
+index d66a9f3e1..8655f02c5 100644
+--- a/SMP/config.h
++++ b/SMP/config.h
+@@ -223,6 +223,11 @@
+ 
+ /* Define to 1 each of the following for which a native (ie. CPU specific)
+     implementation of the corresponding routine exists.  */
++/* ARM64: this SMP fork ships no aarch64 assembly, so none of the
++   HAVE_NATIVE_mpn_* routines below exist on ARM64. Declaring them would make
++   gmp skip its own portable C implementations and then fail to link. Guard the
++   whole block so ARM64 uses the generic paths throughout. */
++#if !defined(_M_ARM64) && !defined(__aarch64__)
+ #define HAVE_NATIVE_mpn_add_n 1
+ /* #undef HAVE_NATIVE_mpn_add_n_sub_n */
+ #define HAVE_NATIVE_mpn_add_nc 1
+@@ -377,6 +382,7 @@
+ #define HAVE_NATIVE_mpn_xor_n 1
+ #define HAVE_NATIVE_mpn_xnor_n 1
+ #endif
++#endif /* !_M_ARM64 && !__aarch64__ : end of HAVE_NATIVE_mpn_* block */
+ 
+ /* Define to 1 if you have the `nl_langinfo' function. */
+ /* #undef HAVE_NL_LANGINFO */
+diff --git a/SMP/gen-bases.vcxproj b/SMP/gen-bases.vcxproj
+index 40ffece05..b54b95837 100644
+--- a/SMP/gen-bases.vcxproj
++++ b/SMP/gen-bases.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -176,6 +214,48 @@ mkdir x86_64
+ mkdir x86_64\mpn
+ gen-bases.exe table 64 0 &gt;x86_64\mpn\mp_bases.c
+ gen-bases.exe header 64 0 &gt;x86_64\mp_bases.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\mp_bases.c (
++del ..\mpn\mp_bases.c
++)
++if exist ..\mp_bases.h (
++del ..\mp_bases.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-bases.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)gen-bases.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++mkdir x86\mpn
++gen-bases.exe table 32 0 &gt;x86\mpn\mp_bases.c
++gen-bases.exe header 32 0 &gt;x86\mp_bases.h
++mkdir x86_64
++mkdir x86_64\mpn
++gen-bases.exe table 64 0 &gt;x86_64\mpn\mp_bases.c
++gen-bases.exe header 64 0 &gt;x86_64\mp_bases.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -259,6 +339,48 @@ mkdir x86_64
+ mkdir x86_64\mpn
+ gen-bases.exe table 64 0 &gt;x86_64\mpn\mp_bases.c
+ gen-bases.exe header 64 0 &gt;x86_64\mp_bases.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\mp_bases.c (
++del ..\mpn\mp_bases.c
++)
++if exist ..\mp_bases.h (
++del ..\mp_bases.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-bases.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++mkdir x86\mpn
++gen-bases.exe table 32 0 &gt;x86\mpn\mp_bases.c
++gen-bases.exe header 32 0 &gt;x86\mp_bases.h
++mkdir x86_64
++mkdir x86_64\mpn
++gen-bases.exe table 64 0 &gt;x86_64\mpn\mp_bases.c
++gen-bases.exe header 64 0 &gt;x86_64\mp_bases.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/gen-fac.vcxproj b/SMP/gen-fac.vcxproj
+index 7bc71c93e..bccaf8012 100644
+--- a/SMP/gen-fac.vcxproj
++++ b/SMP/gen-fac.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -162,6 +200,41 @@ del ..\fac_table.h
+ gen-fac.exe 32 0 &gt; x86\fac_table.h
+ mkdir x86_64
+ gen-fac.exe 64 0 &gt; x86_64\fac_table.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\fac_table.h (
++del ..\fac_table.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-fac.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)gen-fac.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++gen-fac.exe 32 0 &gt; x86\fac_table.h
++mkdir x86_64
++gen-fac.exe 64 0 &gt; x86_64\fac_table.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -231,6 +304,41 @@ del ..\fac_table.h
+ gen-fac.exe 32 0 &gt; x86\fac_table.h
+ mkdir x86_64
+ gen-fac.exe 64 0 &gt; x86_64\fac_table.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\fac_table.h (
++del ..\fac_table.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-fac.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++gen-fac.exe 32 0 &gt; x86\fac_table.h
++mkdir x86_64
++gen-fac.exe 64 0 &gt; x86_64\fac_table.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/gen-fib.vcxproj b/SMP/gen-fib.vcxproj
+index e4e9f82dd..2902d2b66 100644
+--- a/SMP/gen-fib.vcxproj
++++ b/SMP/gen-fib.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -176,6 +214,48 @@ mkdir x86_64
+ mkdir x86_64\mpn
+ gen-fib.exe table 64 0 &gt; x86_64\mpn\fib_table.c
+ gen-fib.exe header 64 0 &gt; x86_64\fib_table.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\fib_table.c (
++del ..\mpn\fib_table.c
++)
++if exist ..\fib_table.h (
++del ..\fib_table.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-fib.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)gen-fib.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++mkdir x86\mpn
++gen-fib.exe table 32 0 &gt; x86\mpn\fib_table.c
++gen-fib.exe header 32 0 &gt; x86\fib_table.h
++mkdir x86_64
++mkdir x86_64\mpn
++gen-fib.exe table 64 0 &gt; x86_64\mpn\fib_table.c
++gen-fib.exe header 64 0 &gt; x86_64\fib_table.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -259,6 +339,48 @@ mkdir x86_64
+ mkdir x86_64\mpn
+ gen-fib.exe table 64 0 &gt; x86_64\mpn\fib_table.c
+ gen-fib.exe header 64 0 &gt; x86_64\fib_table.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\fib_table.c (
++del ..\mpn\fib_table.c
++)
++if exist ..\fib_table.h (
++del ..\fib_table.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-fib.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++mkdir x86\mpn
++gen-fib.exe table 32 0 &gt; x86\mpn\fib_table.c
++gen-fib.exe header 32 0 &gt; x86\fib_table.h
++mkdir x86_64
++mkdir x86_64\mpn
++gen-fib.exe table 64 0 &gt; x86_64\mpn\fib_table.c
++gen-fib.exe header 64 0 &gt; x86_64\fib_table.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/gen-jacobitab.vcxproj b/SMP/gen-jacobitab.vcxproj
+index 935c43b7b..9dbda9b40 100644
+--- a/SMP/gen-jacobitab.vcxproj
++++ b/SMP/gen-jacobitab.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -133,6 +171,37 @@ del ..\config.h
+ )
+ if exist ..\mpn\jacobitab.h (
+ del ..\mpn\jacobitab.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-jacobitab.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)gen-jacobitab.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>gen-jacobitab.exe &gt;mpn/jacobitab.h</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\jacobitab.h (
++del ..\mpn\jacobitab.h
+ )</Command>
+     </PreBuildEvent>
+     <ClCompile>
+@@ -194,6 +263,37 @@ del ..\config.h
+ )
+ if exist ..\mpn\jacobitab.h (
+ del ..\mpn\jacobitab.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-jacobitab.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>gen-jacobitab.exe &gt;mpn/jacobitab.h</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\jacobitab.h (
++del ..\mpn\jacobitab.h
+ )</Command>
+     </PreBuildEvent>
+     <ClCompile>
+diff --git a/SMP/gen-psqr.vcxproj b/SMP/gen-psqr.vcxproj
+index 41675c225..40c636a0a 100644
+--- a/SMP/gen-psqr.vcxproj
++++ b/SMP/gen-psqr.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -160,6 +198,40 @@ del ..\mpn\perfsqr.h
+       <Command>mkdir x86
+ gen-psqr.exe 32 0 &gt; x86\mpn\perfsqr.h
+ mkdir x86_64
++gen-psqr.exe 64 0 &gt; x86_64\mpn\perfsqr.h</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\perfsqr.h (
++del ..\mpn\perfsqr.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-psqr.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)gen-psqr.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++gen-psqr.exe 32 0 &gt; x86\mpn\perfsqr.h
++mkdir x86_64
+ gen-psqr.exe 64 0 &gt; x86_64\mpn\perfsqr.h</Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -227,6 +299,40 @@ del ..\mpn\perfsqr.h
+       <Command>mkdir x86
+ gen-psqr.exe 32 0 &gt; x86\mpn\perfsqr.h
+ mkdir x86_64
++gen-psqr.exe 64 0 &gt; x86_64\mpn\perfsqr.h</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\mpn\perfsqr.h (
++del ..\mpn\perfsqr.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-psqr.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++gen-psqr.exe 32 0 &gt; x86\mpn\perfsqr.h
++mkdir x86_64
+ gen-psqr.exe 64 0 &gt; x86_64\mpn\perfsqr.h</Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/gen-trialdivtab.vcxproj b/SMP/gen-trialdivtab.vcxproj
+index e478dc32c..f854e4070 100644
+--- a/SMP/gen-trialdivtab.vcxproj
++++ b/SMP/gen-trialdivtab.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -162,6 +200,41 @@ del ..\trialdivtab.h
+ gen-trialdivtab.exe 32 8000 &gt; x86\trialdivtab.h
+ mkdir x86_64
+ gen-trialdivtab.exe 64 8000 &gt; x86_64\trialdivtab.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\trialdivtab.h (
++del ..\trialdivtab.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-trialdivtab.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)gen-trialdivtab.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++gen-trialdivtab.exe 32 8000 &gt; x86\trialdivtab.h
++mkdir x86_64
++gen-trialdivtab.exe 64 8000 &gt; x86_64\trialdivtab.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -231,6 +304,41 @@ del ..\trialdivtab.h
+ gen-trialdivtab.exe 32 8000 &gt; x86\trialdivtab.h
+ mkdir x86_64
+ gen-trialdivtab.exe 64 8000 &gt; x86_64\trialdivtab.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\trialdivtab.h (
++del ..\trialdivtab.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\gen-trialdivtab.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++gen-trialdivtab.exe 32 8000 &gt; x86\trialdivtab.h
++mkdir x86_64
++gen-trialdivtab.exe 64 8000 &gt; x86_64\trialdivtab.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/gmp.h b/SMP/gmp.h
+index f87000a37..f8d5ef253 100644
+--- a/SMP/gmp.h
++++ b/SMP/gmp.h
+@@ -40,7 +40,7 @@ see https://www.gnu.org/licenses/.  */
+ #if ! defined (__GMP_WITHIN_CONFIGURE)
+ #define __GMP_HAVE_HOST_CPU_FAMILY_power   0
+ #define __GMP_HAVE_HOST_CPU_FAMILY_powerpc 0
+-#if defined(__x86_64) || defined(_M_X64)
++#if defined(__x86_64) || defined(_M_X64) || defined(__aarch64__) || defined(_M_ARM64)
+ #define GMP_LIMB_BITS                      64
+ #else
+ #define GMP_LIMB_BITS                      32
+@@ -61,7 +61,7 @@ see https://www.gnu.org/licenses/.  */
+ 
+ /* Instantiated by configure. */
+ #if ! defined (__GMP_WITHIN_CONFIGURE)
+-#if defined(__x86_64) || defined(_M_X64)
++#if defined(__x86_64) || defined(_M_X64) || defined(__aarch64__) || defined(_M_ARM64)
+ #define _LONG_LONG_LIMB 1
+ #endif
+ #if defined(DLL_EXPORT) && defined(NO_ASM)
+diff --git a/SMP/libgmp.sln b/SMP/libgmp.sln
+index e0ce16da0..82ed39628 100644
+--- a/SMP/libgmp.sln
++++ b/SMP/libgmp.sln
+@@ -1,6 +1,7 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-VisualStudioVersion = 12.0.30501.0
++# Visual Studio Version 17
++VisualStudioVersion = 17.13.35931.197 d17.13
+ MinimumVisualStudioVersion = 12.0.30501.0
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgmp", "libgmp.vcxproj", "{02B94302-23D6-43EF-8865-95CDE99D5DC2}"
+ EndProject
+@@ -22,166 +23,290 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gen-trialdivtab", "gen-tria
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|ARM64 = Debug|ARM64
+ 		Debug|x64 = Debug|x64
+ 		Debug|x86 = Debug|x86
++		DebugDLL|ARM64 = DebugDLL|ARM64
+ 		DebugDLL|x64 = DebugDLL|x64
+ 		DebugDLL|x86 = DebugDLL|x86
++		DebugDLLWinRT|ARM64 = DebugDLLWinRT|ARM64
+ 		DebugDLLWinRT|x64 = DebugDLLWinRT|x64
+ 		DebugDLLWinRT|x86 = DebugDLLWinRT|x86
++		DebugWinRT|ARM64 = DebugWinRT|ARM64
+ 		DebugWinRT|x64 = DebugWinRT|x64
+ 		DebugWinRT|x86 = DebugWinRT|x86
++		Release|ARM64 = Release|ARM64
+ 		Release|x64 = Release|x64
+ 		Release|x86 = Release|x86
++		ReleaseDLL|ARM64 = ReleaseDLL|ARM64
+ 		ReleaseDLL|x64 = ReleaseDLL|x64
+ 		ReleaseDLL|x86 = ReleaseDLL|x86
++		ReleaseDLLWinRT|ARM64 = ReleaseDLLWinRT|ARM64
+ 		ReleaseDLLWinRT|x64 = ReleaseDLLWinRT|x64
+ 		ReleaseDLLWinRT|x86 = ReleaseDLLWinRT|x86
++		ReleaseWinRT|ARM64 = ReleaseWinRT|ARM64
+ 		ReleaseWinRT|x64 = ReleaseWinRT|x64
+ 		ReleaseWinRT|x86 = ReleaseWinRT|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.ActiveCfg = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.Build.0 = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.Build.0 = Debug|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.ActiveCfg = Release|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.Build.0 = Release|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.Build.0 = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.ActiveCfg = Release|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.Build.0 = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.Debug|x64.ActiveCfg = Debug|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.Debug|x86.ActiveCfg = Debug|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.Release|x64.ActiveCfg = Release|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.Release|x86.ActiveCfg = Release|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{51EF8902-63B3-4579-B816-B4DC3A2789ED}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.Debug|x64.ActiveCfg = Debug|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.Debug|x86.ActiveCfg = Debug|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.Release|x64.ActiveCfg = Release|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.Release|x86.ActiveCfg = Release|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{D64CDBFD-FAF5-4AB2-9A7A-3CFAF86A0354}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.Debug|x64.ActiveCfg = Debug|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.Debug|x86.ActiveCfg = Debug|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.Release|x64.ActiveCfg = Release|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.Release|x86.ActiveCfg = Release|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{F48FE515-9719-4AB6-8607-01FFBF5ED090}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.Debug|x64.ActiveCfg = Debug|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.Debug|x86.ActiveCfg = Debug|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.Release|x64.ActiveCfg = Release|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.Release|x86.ActiveCfg = Release|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{6859A4C8-BE7F-4282-8A71-2936AB052205}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.Debug|x64.ActiveCfg = Debug|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.Debug|x86.ActiveCfg = Debug|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.Release|x64.ActiveCfg = Release|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.Release|x86.ActiveCfg = Release|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{49F542E1-175C-4786-8E77-90BBC0213329}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
+ 	EndGlobalSection
+diff --git a/SMP/libgmp.vcxproj b/SMP/libgmp.vcxproj
+index 7a8ecd3c4..d097bd5a6 100644
+--- a/SMP/libgmp.vcxproj
++++ b/SMP/libgmp.vcxproj
+@@ -1,5 +1,55 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|Win32">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|x64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|Win32">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|x64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{02B94302-23D6-43EF-8865-95CDE99D5DC2}</ProjectGuid>
+     <RootNamespace>gmp</RootNamespace>
+@@ -143,6 +193,74 @@ del /f /q "$(OutDir)"\include\gmp.h
+ )
+ if exist $(OutDir)\licenses\gmp.txt (
+ del /f /q $(OutDir)\licenses\gmp.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Parser>1</Parser>
++      <Preprocessor>1</Preprocessor>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>inline=__inline;__GMP_WITHIN_GMP;__GMP_WITHIN_GMPXX;HAVE_CONFIG_H;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\mpn;.\x86_64;.\x86_64\mpn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4101;4018;4307;4267;4334;4554;4267;4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy .\gmp.h "$(OutDir)"\include\
++copy ..\gmpxx.h "$(OutDir)"\include\
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\gmp.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist "$(OutDir)"\include\gmp.h (
++del "$(OutDir)"\include\gmp.h
++)
++if exist ..\fac_table.h (
++del ..\fac_table.h
++)
++if exist ..\fib_table.h (
++del ..\fib_table.h
++)
++if exist ..\gmp.h (
++del ..\gmp.h
++)
++if exist ..\mp_bases.h (
++del ..\mp_bases.h
++)
++if exist ..\trialdivtab.h (
++del ..\trialdivtab.h
++)
++if exist ..\mpn\perfsqr.h (
++del ..\mpn\perfsqr.h
++)
++if exist ..\mpn\jacobitab.h (
++del ..\mpn\jacobitab.h
++)
++if exist ..\mpn\mp_bases.c (
++del ..\mpn\mp_bases.c
++)
++if exist ..\mpn\fib_table.c (
++del ..\mpn\fib_table.c
++)
++if exist ..\gmp-mparam.h (
++del ..\gmp-mparam.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gmp.h (
++del /f /q "$(OutDir)"\include\gmp.h
++)
++if exist $(OutDir)\licenses\gmp.txt (
++del /f /q $(OutDir)\licenses\gmp.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -286,6 +404,77 @@ del /f /q "$(OutDir)"\include\gmp.h
+ )
+ if exist $(OutDir)\licenses\gmp.txt (
+ del /f /q $(OutDir)\licenses\gmp.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Parser>1</Parser>
++      <Preprocessor>1</Preprocessor>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>inline=__inline;__GMP_WITHIN_GMP;__GMP_WITHIN_GMPXX;HAVE_CONFIG_H;DLL_EXPORT;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\mpn;.\x86_64;.\x86_64\mpn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4101;4018;4307;4267;4334;4554;4267;4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libgmp.def</ModuleDefinitionFile>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy .\gmp.h "$(OutDir)"\include\
++copy ..\gmpxx.h "$(OutDir)"\include\
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\gmp.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist "$(OutDir)"\include\gmp.h (
++del "$(OutDir)"\include\gmp.h
++)
++if exist ..\fac_table.h (
++del ..\fac_table.h
++)
++if exist ..\fib_table.h (
++del ..\fib_table.h
++)
++if exist ..\gmp.h (
++del ..\gmp.h
++)
++if exist ..\mp_bases.h (
++del ..\mp_bases.h
++)
++if exist ..\trialdivtab.h (
++del ..\trialdivtab.h
++)
++if exist ..\mpn\perfsqr.h (
++del ..\mpn\perfsqr.h
++)
++if exist ..\mpn\jacobitab.h (
++del ..\mpn\jacobitab.h
++)
++if exist ..\mpn\mp_bases.c (
++del ..\mpn\mp_bases.c
++)
++if exist ..\mpn\fib_table.c (
++del ..\mpn\fib_table.c
++)
++if exist ..\gmp-mparam.h (
++del ..\gmp-mparam.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gmp.h (
++del /f /q "$(OutDir)"\include\gmp.h
++)
++if exist $(OutDir)\licenses\gmp.txt (
++del /f /q $(OutDir)\licenses\gmp.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -425,6 +614,74 @@ del /f /q "$(OutDir)"\include\gmp.h
+ )
+ if exist $(OutDir)\licenses\gmp.txt (
+ del /f /q $(OutDir)\licenses\gmp.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Parser>1</Parser>
++      <Preprocessor>1</Preprocessor>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>inline=__inline;__GMP_WITHIN_GMP;__GMP_WITHIN_GMPXX;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\mpn;.\x86_64;.\x86_64\mpn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4101;4018;4307;4267;4334;4554;4267;4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy .\gmp.h "$(OutDir)"\include\
++copy ..\gmpxx.h "$(OutDir)"\include\
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\gmp.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist "$(OutDir)"\include\gmp.h (
++del "$(OutDir)"\include\gmp.h
++)
++if exist ..\fac_table.h (
++del ..\fac_table.h
++)
++if exist ..\fib_table.h (
++del ..\fib_table.h
++)
++if exist ..\gmp.h (
++del ..\gmp.h
++)
++if exist ..\mp_bases.h (
++del ..\mp_bases.h
++)
++if exist ..\trialdivtab.h (
++del ..\trialdivtab.h
++)
++if exist ..\mpn\perfsqr.h (
++del ..\mpn\perfsqr.h
++)
++if exist ..\mpn\jacobitab.h (
++del ..\mpn\jacobitab.h
++)
++if exist ..\mpn\mp_bases.c (
++del ..\mpn\mp_bases.c
++)
++if exist ..\mpn\fib_table.c (
++del ..\mpn\fib_table.c
++)
++if exist ..\gmp-mparam.h (
++del ..\gmp-mparam.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gmp.h (
++del /f /q "$(OutDir)"\include\gmp.h
++)
++if exist $(OutDir)\licenses\gmp.txt (
++del /f /q $(OutDir)\licenses\gmp.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -568,6 +825,77 @@ del /f /q "$(OutDir)"\include\gmp.h
+ )
+ if exist $(OutDir)\licenses\gmp.txt (
+ del /f /q $(OutDir)\licenses\gmp.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Parser>1</Parser>
++      <Preprocessor>1</Preprocessor>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>inline=__inline;__GMP_WITHIN_GMP;__GMP_WITHIN_GMPXX;HAVE_CONFIG_H;DLL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\mpn;.\x86_64;.\x86_64\mpn;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4101;4018;4307;4267;4334;4554;4267;4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libgmp.def</ModuleDefinitionFile>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy .\gmp.h "$(OutDir)"\include\
++copy ..\gmpxx.h "$(OutDir)"\include\
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\gmp.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist "$(OutDir)"\include\gmp.h (
++del "$(OutDir)"\include\gmp.h
++)
++if exist ..\fac_table.h (
++del ..\fac_table.h
++)
++if exist ..\fib_table.h (
++del ..\fib_table.h
++)
++if exist ..\gmp.h (
++del ..\gmp.h
++)
++if exist ..\mp_bases.h (
++del ..\mp_bases.h
++)
++if exist ..\trialdivtab.h (
++del ..\trialdivtab.h
++)
++if exist ..\mpn\perfsqr.h (
++del ..\mpn\perfsqr.h
++)
++if exist ..\mpn\jacobitab.h (
++del ..\mpn\jacobitab.h
++)
++if exist ..\mpn\mp_bases.c (
++del ..\mpn\mp_bases.c
++)
++if exist ..\mpn\fib_table.c (
++del ..\mpn\fib_table.c
++)
++if exist ..\gmp-mparam.h (
++del ..\gmp-mparam.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gmp.h (
++del /f /q "$(OutDir)"\include\gmp.h
++)
++if exist $(OutDir)\licenses\gmp.txt (
++del /f /q $(OutDir)\licenses\gmp.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+diff --git a/SMP/libgmp_files.props b/SMP/libgmp_files.props
+index 13a8012c4..ef2c1cb31 100644
+--- a/SMP/libgmp_files.props
++++ b/SMP/libgmp_files.props
+@@ -909,10 +909,10 @@
+       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+     </ClCompile>
+     <ClCompile Include="x86\mpn\fib_table.c">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </ClCompile>
+     <ClCompile Include="x86\mpn\mp_bases.c">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </ClCompile>
+     <ClCompile Include="x86_64\mpn\fib_table.c">
+       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+@@ -951,245 +951,330 @@
+   </ItemGroup>
+   <ItemGroup>
+     <YASM Include="mpn\x86_64\addlsh1_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\addlsh2_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\addlsh_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\addmul_2.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\add_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\bdiv_q_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\cnd_add_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\cnd_sub_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\com.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\copyd.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\copyi.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\divexact_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\gcd_11.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\hamdist.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\invert_limb.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\lshsub_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\modexact_1_odd.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mod_1s_2p.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mod_1s_4p.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mod_1_1p.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mod_34lsub1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mullo_basecase.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mul_2.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mul_basecase.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\popcount.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\rsblsh1_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\rsblsh2_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\rsblsh_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\sqr_basecase.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\sqr_diag_addlsh1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\sublsh1_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\sub_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\invert_limb_table.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\mul_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\rsh1sub_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\submul_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\divrem_2.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\rshift.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\divrem_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\lshift.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\div_qr_1n_pi1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\div_qr_2n_pi1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\addmul_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\rsh1add_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\lshiftc.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\redc_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\andn_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\and_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\ior_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\bdiv_dbm1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\iorn_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\sec_tabselect.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\sublsh2_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\xnor_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\xor_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\nand_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86_64\nior_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\addmul_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+       <ObjectFile>$(IntDir)%(Filename).obj</ObjectFile>
+     </YASM>
+     <YASM Include="mpn\x86\add_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\bdiv_dbm1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\bdiv_q_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\cnd_add_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\cnd_sub_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\copyd.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\copyi.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\divexact_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\divrem_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\divrem_2.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\gcd_11.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\lshift.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\mod_34lsub1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\mul_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\rshift.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\sec_tabselect.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\sqr_basecase.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\submul_1.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\sub_n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\udiv_qrnnd.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="mpn\x86\umul_ppmm.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+   </ItemGroup>
+   <ItemGroup>
+     <None Include="libgmp.def" />
+   </ItemGroup>
+-</Project>
+\ No newline at end of file
++  <!-- ARM64 generic mpn fallbacks: on x86/x64 these symbols come from
++       hand-written assembly (the YASM items above), which ARM64 cannot use.
++       Excluded everywhere except ARM64 to avoid duplicate symbols. -->
++  <ItemGroup>
++    <ClCompile Include="..\mpn\generic\bdiv_dbm1c.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\mod_34lsub1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\bdiv_q_1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\sqr_basecase.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\add_n.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\addmul_1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\cnd_add_n.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\cnd_sub_n.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\copyd.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\copyi.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\dive_1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\divrem_1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\divrem_2.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\gcd_11.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\lshift.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\mul_1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\rshift.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\sec_tabselect.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\sub_n.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\mpn\generic\submul_1.c">
++      <ObjectFileName>$(IntDir)\mpn_%(Filename).obj</ObjectFileName>
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++  </ItemGroup>
++</Project>
+diff --git a/SMP/smp.props b/SMP/smp.props
+index 373e0ba94..d4e59ad31 100644
+--- a/SMP/smp.props
++++ b/SMP/smp.props
+@@ -9,6 +9,10 @@
+       <Configuration>DebugDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -17,6 +21,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="ReleaseDLL|Win32">
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>Win32</Platform>
+@@ -25,6 +33,10 @@
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -33,6 +45,10 @@
+       <Configuration>Release</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -53,6 +69,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+@@ -61,6 +81,10 @@
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -69,6 +93,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -79,6 +107,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -102,6 +135,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <TargetName>lib$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <TargetName>$(RootNamespace)d</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -118,6 +159,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <TargetName>$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <TargetName>lib$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -134,6 +183,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <TargetName>lib$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <TargetName>$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -150,6 +207,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <TargetName>$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -186,6 +251,24 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -232,6 +315,28 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -282,6 +387,31 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -343,8 +473,38 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+   <ItemGroup />
+-</Project>
+\ No newline at end of file
++</Project>
+diff --git a/longlong.h b/longlong.h
+index 9c8b6fcd1..ef37c67ea 100644
+--- a/longlong.h
++++ b/longlong.h
+@@ -1966,7 +1966,12 @@ extern UWtype __MPN(udiv_qrnnd) (UWtype *, UWtype, UWtype, UWtype);
+ 
+ #ifdef _MSC_VER
+ #include <intrin.h>
++/* <immintrin.h> is an x86/x64-only header; including it on ARM64 is a hard
++   #error. <intrin.h> above already supplies the _BitScan* intrinsics used
++   below on every MSVC target, including ARM64. */
++#if defined(_M_IX86) || defined(_M_X64)
+ #include <immintrin.h>
++#endif
+ #if W_TYPE_SIZE == 32
+ #ifndef count_leading_zeros
+ #define count_leading_zeros(count, x)			\
+@@ -2005,21 +2010,44 @@ extern UWtype __MPN(udiv_qrnnd) (UWtype *, UWtype, UWtype, UWtype);
+   } while (0)
+ #endif
+ 
++/* _umul128/_mul128 are x64-only. ARM64 MSVC instead provides __umulh/__mulh,
++   which give the high half of the 128-bit product; the low half is just the
++   ordinary 64-bit product. Note u/v are evaluated twice here, which is safe
++   for gmp's uses (always simple limb variables) but worth knowing. */
+ #ifndef umul_ppmm
++#if defined(_M_ARM64)
++#define umul_ppmm(w1, w0, u, v)					\
++  do {											\
++	(w1) = __umulh((u), (v));					\
++	(w0) = (mp_limb_t)(u) * (mp_limb_t)(v);		\
++  } while (0)
++#else
+ #define umul_ppmm(w1, w0, u, v)					\
+   do {											\
+ 	(w0) = _umul128(u, v, &(w1));				\
+   } while (0)
+ #endif
++#endif
+ 
+ #ifndef smul_ppmm
++#if defined(_M_ARM64)
++#define smul_ppmm(w1, w0, u, v)					\
++  do {											\
++	(w1) = __mulh((u), (v));					\
++	(w0) = (mp_limb_t)(u) * (mp_limb_t)(v);		\
++  } while (0)
++#else
+ #define smul_ppmm(w1, w0, u, v)					\
+   do {											\
+ 	(w0) = _mul128(u, v, &(w1));				\
+   } while (0)
+ #endif
++#endif
+ 
+-#if _MSC_VER >= 1920
++/* _udiv128/_div128 are x64-only intrinsics; ARM64 MSVC does not provide them,
++   so leave udiv_qrnnd/sdiv_qrnnd undefined there and let gmp fall back to its
++   own portable C implementation. */
++#if _MSC_VER >= 1920 && defined(_M_X64)
+ #ifndef udiv_qrnnd
+ #define udiv_qrnnd(q, r, n1, n0, dx)			\
+   do {											\

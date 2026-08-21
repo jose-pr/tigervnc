@@ -1,0 +1,85 @@
+Building GnuTLS (and its dependencies) for MSVC on ARM64
+========================================================
+
+TigerVNC's optional GnuTLS support needs a GnuTLS that MSVC can link.
+There isn't one to download: vcpkg's port is marked
+
+    "supports": "!windows | mingw"
+
+so a Windows triplet legitimately contains no gnutls.lib, and that
+absence is not evidence that anything is broken.
+
+The ShiftMediaProject forks carry Visual Studio solutions for the whole
+stack, but ship Win32 and x64 configurations only. These patches add
+ARM64. They are recorded here because working them out again costs a
+day, not because TigerVNC needs them -- nothing in this directory is
+part of the build.
+
+
+What the patches apply to
+-------------------------
+
+Each was generated against, and verified to apply cleanly to, these
+commits:
+
+    zlib     6c46b96   v1.3.1-2-g6c46b96
+    gmp      6702eddd  6.2.1-4-4-g6702eddd0
+    nettle   f73aec48  nettle_3.10.1_release_20241230-1-gf73aec48
+    gnutls   5995f0dc  3.8.8-1-g5995f0dc5
+
+from github.com/ShiftMediaProject/{zlib,gmp,nettle,gnutls}, plus
+vsyasm-arm64.patch for github.com/ShiftMediaProject/VSYASM.
+
+
+What they change
+----------------
+
+Most of it is msbuild: adding Debug|ARM64 and Release|ARM64 (and the
+DLL, WinRT and DLLStaticDeps variants where a solution has them) beside
+the existing Win32 and x64 entries, and excluding the x86 assembly from
+ARM64 builds in the *_files.props.
+
+The parts that are not msbuild are worth knowing about, because they are
+where the actual porting is:
+
+  gmp/longlong.h
+      <immintrin.h> is x86/x64 only and is a hard #error on ARM64;
+      <intrin.h> already provides the _BitScan* intrinsics used there.
+      _umul128 is x64 only, so umul_ppmm is implemented with __umulh
+      plus an ordinary 64-bit multiply for the low half.
+
+  gmp/SMP/config.h
+      This fork ships no aarch64 assembly, so the HAVE_NATIVE_mpn_*
+      block is disabled on ARM64. Leaving it declared makes gmp skip its
+      own portable C and then fail to link.
+
+  gmp/SMP/gmp.h
+      __aarch64__ / _M_ARM64 added to the 64-bit limb detection.
+
+  nettle/SMP/config.h
+      Same story: no assembly on ARM64, so the generic C paths are used.
+
+  gnutls/SMP/config.h
+      PadLock is a VIA x86 instruction-set extension. It does not exist
+      on ARM64 and its sources are excluded from that build.
+
+  VSYASM yasm.props, install_script.bat
+      The props file hard-fails on any platform that is not Win32 or
+      x64, and the installer does not recognise an ARM64 host.
+
+
+Using them
+----------
+
+Clone each fork at the commit above, apply the matching patch, then
+build in dependency order -- zlib, gmp, nettle, gnutls -- with the
+ReleaseDLL|ARM64 configuration. Collect the headers, import libraries
+and DLLs into one tree, and point TigerVNC at it:
+
+    cmake -S . -B build -G "Visual Studio 17 2022" -A ARM64       -DGNUTLS_INCLUDE_DIR=<tree>/include       -DGNUTLS_LIBRARY=<tree>/lib/gnutls.lib
+
+VSYASM has to be installed before building gmp or nettle, from an
+elevated prompt, or the assembler custom build step is unavailable.
+
+These are a record of one working build, not a supported product. If
+ShiftMediaProject has moved on, expect to redo rather than rebase them.

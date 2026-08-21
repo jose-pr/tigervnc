@@ -1,0 +1,656 @@
+diff --git a/SMP/libzlib.sln b/SMP/libzlib.sln
+index 927dbde..8f4c855 100644
+--- a/SMP/libzlib.sln
++++ b/SMP/libzlib.sln
+@@ -1,6 +1,7 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-VisualStudioVersion = 12.0.30501.0
++# Visual Studio Version 17
++VisualStudioVersion = 17.13.35931.197 d17.13
+ MinimumVisualStudioVersion = 12.0.30501.0
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib", "libzlib.vcxproj", "{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}"
+ EndProject
+@@ -8,68 +9,108 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib_winrt", "libzlib_wi
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|ARM64 = Debug|ARM64
+ 		Debug|x64 = Debug|x64
+ 		Debug|x86 = Debug|x86
++		DebugDLL|ARM64 = DebugDLL|ARM64
+ 		DebugDLL|x64 = DebugDLL|x64
+ 		DebugDLL|x86 = DebugDLL|x86
++		DebugDLLWinRT|ARM64 = DebugDLLWinRT|ARM64
+ 		DebugDLLWinRT|x64 = DebugDLLWinRT|x64
+ 		DebugDLLWinRT|x86 = DebugDLLWinRT|x86
++		DebugWinRT|ARM64 = DebugWinRT|ARM64
+ 		DebugWinRT|x64 = DebugWinRT|x64
+ 		DebugWinRT|x86 = DebugWinRT|x86
++		Release|ARM64 = Release|ARM64
+ 		Release|x64 = Release|x64
+ 		Release|x86 = Release|x86
++		ReleaseDLL|ARM64 = ReleaseDLL|ARM64
+ 		ReleaseDLL|x64 = ReleaseDLL|x64
+ 		ReleaseDLL|x86 = ReleaseDLL|x86
++		ReleaseDLLWinRT|ARM64 = ReleaseDLLWinRT|ARM64
+ 		ReleaseDLLWinRT|x64 = ReleaseDLLWinRT|x64
+ 		ReleaseDLLWinRT|x86 = ReleaseDLLWinRT|x86
++		ReleaseWinRT|ARM64 = ReleaseWinRT|ARM64
+ 		ReleaseWinRT|x64 = ReleaseWinRT|x64
+ 		ReleaseWinRT|x86 = ReleaseWinRT|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x64.ActiveCfg = Debug|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x64.Build.0 = Debug|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x86.Build.0 = Debug|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.ActiveCfg = Release|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.Build.0 = Release|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x64.ActiveCfg = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x64.Build.0 = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x86.ActiveCfg = Release|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x86.Build.0 = Release|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+diff --git a/SMP/libzlib.vcxproj b/SMP/libzlib.vcxproj
+index 8f5d17f..89825e0 100644
+--- a/SMP/libzlib.vcxproj
++++ b/SMP/libzlib.vcxproj
+@@ -1,5 +1,55 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|Win32">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|x64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|Win32">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|x64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}</ProjectGuid>
+     <RootNamespace>zlib</RootNamespace>
+@@ -85,6 +135,46 @@ del /f /q "$(OutDir)"\include\zconf.h
+ )
+ if exist $(OutDir)\licenses\zlib.txt (
+ del /f /q $(OutDir)\licenses\zlib.txt
++)</Command>
++    </CustomBuildStep>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>WIN64;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy ..\zlib.h "$(OutDir)"\include
++copy .\zconf.h "$(OutDir)"\include
++mkdir $(OutDir)\licenses
++copy ..\README $(OutDir)\licenses\zlib.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\zconf.h (
++del ..\zconf.h
++)
++if exist "$(OutDir)"\include\zlib.h (
++del "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del "$(OutDir)"\include\zconf.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\zlib.h (
++del /f /q "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del /f /q "$(OutDir)"\include\zconf.h
++)
++if exist $(OutDir)\licenses\zlib.txt (
++del /f /q $(OutDir)\licenses\zlib.txt
+ )</Command>
+     </CustomBuildStep>
+   </ItemDefinitionGroup>
+@@ -171,6 +261,49 @@ del /f /q "$(OutDir)"\include\zconf.h
+ )
+ if exist $(OutDir)\licenses\zlib.txt (
+ del /f /q $(OutDir)\licenses\zlib.txt
++)</Command>
++    </CustomBuildStep>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>WIN64;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>..\contrib\vstudio\vc11\zlibvc.def</ModuleDefinitionFile>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy ..\zlib.h "$(OutDir)"\include
++copy .\zconf.h "$(OutDir)"\include
++mkdir $(OutDir)\licenses
++copy ..\README $(OutDir)\licenses\zlib.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\zconf.h (
++del ..\zconf.h
++)
++if exist "$(OutDir)"\include\zlib.h (
++del "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del "$(OutDir)"\include\zconf.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\zlib.h (
++del /f /q "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del /f /q "$(OutDir)"\include\zconf.h
++)
++if exist $(OutDir)\licenses\zlib.txt (
++del /f /q $(OutDir)\licenses\zlib.txt
+ )</Command>
+     </CustomBuildStep>
+   </ItemDefinitionGroup>
+@@ -251,6 +384,46 @@ del /f /q "$(OutDir)"\include\zconf.h
+ )
+ if exist $(OutDir)\licenses\zlib.txt (
+ del /f /q $(OutDir)\licenses\zlib.txt
++)</Command>
++    </CustomBuildStep>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy ..\zlib.h "$(OutDir)"\include
++copy .\zconf.h "$(OutDir)"\include
++mkdir $(OutDir)\licenses
++copy ..\README $(OutDir)\licenses\zlib.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\zconf.h (
++del ..\zconf.h
++)
++if exist "$(OutDir)"\include\zlib.h (
++del "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del "$(OutDir)"\include\zconf.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\zlib.h (
++del /f /q "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del /f /q "$(OutDir)"\include\zconf.h
++)
++if exist $(OutDir)\licenses\zlib.txt (
++del /f /q $(OutDir)\licenses\zlib.txt
+ )</Command>
+     </CustomBuildStep>
+   </ItemDefinitionGroup>
+@@ -337,6 +510,49 @@ del /f /q "$(OutDir)"\include\zconf.h
+ )
+ if exist $(OutDir)\licenses\zlib.txt (
+ del /f /q $(OutDir)\licenses\zlib.txt
++)</Command>
++    </CustomBuildStep>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>..\contrib\vstudio\vc11\zlibvc.def</ModuleDefinitionFile>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++copy ..\zlib.h "$(OutDir)"\include
++copy .\zconf.h "$(OutDir)"\include
++mkdir $(OutDir)\licenses
++copy ..\README $(OutDir)\licenses\zlib.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\zconf.h (
++del ..\zconf.h
++)
++if exist "$(OutDir)"\include\zlib.h (
++del "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del "$(OutDir)"\include\zconf.h
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\zlib.h (
++del /f /q "$(OutDir)"\include\zlib.h
++)
++if exist "$(OutDir)"\include\zconf.h (
++del /f /q "$(OutDir)"\include\zconf.h
++)
++if exist $(OutDir)\licenses\zlib.txt (
++del /f /q $(OutDir)\licenses\zlib.txt
+ )</Command>
+     </CustomBuildStep>
+   </ItemDefinitionGroup>
+diff --git a/SMP/smp.props b/SMP/smp.props
+index 373e0ba..d4e59ad 100644
+--- a/SMP/smp.props
++++ b/SMP/smp.props
+@@ -9,6 +9,10 @@
+       <Configuration>DebugDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -17,6 +21,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="ReleaseDLL|Win32">
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>Win32</Platform>
+@@ -25,6 +33,10 @@
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -33,6 +45,10 @@
+       <Configuration>Release</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -53,6 +69,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+@@ -61,6 +81,10 @@
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -69,6 +93,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -79,6 +107,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -102,6 +135,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <TargetName>lib$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <TargetName>$(RootNamespace)d</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -118,6 +159,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <TargetName>$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <TargetName>lib$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -134,6 +183,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <TargetName>lib$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <TargetName>$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -150,6 +207,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <TargetName>$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -186,6 +251,24 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -232,6 +315,28 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -282,6 +387,31 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -343,8 +473,38 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+   <ItemGroup />
+-</Project>
+\ No newline at end of file
++</Project>

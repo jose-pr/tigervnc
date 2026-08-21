@@ -1,0 +1,1594 @@
+diff --git a/SMP/config.h b/SMP/config.h
+index 52d823fa2..5c6f0ec79 100644
+--- a/SMP/config.h
++++ b/SMP/config.h
+@@ -101,7 +101,11 @@
+ #define ENABLE_OCSP 1
+ 
+ /* Enable padlock acceleration */
++/* PadLock is a VIA x86 instruction-set extension; it does not exist on ARM64,
++   and its sources are excluded from the ARM64 build. */
++#if !defined(_M_ARM64) && !defined(__aarch64__)
+ #define ENABLE_PADLOCK 1
++#endif
+ 
+ /* Build PKCS#11 support */
+ /* #undef ENABLE_PKCS11 */
+diff --git a/SMP/libgnutls.sln b/SMP/libgnutls.sln
+index faadbca9d..c979d96fe 100644
+--- a/SMP/libgnutls.sln
++++ b/SMP/libgnutls.sln
+@@ -1,6 +1,7 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-VisualStudioVersion = 12.0.30501.0
++# Visual Studio Version 17
++VisualStudioVersion = 17.13.35931.197 d17.13
+ MinimumVisualStudioVersion = 12.0.30501.0
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgnutls", "libgnutls.vcxproj", "{6F610EE8-7F59-4191-AB88-F63843267C02}"
+ EndProject
+@@ -8,84 +9,134 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgnutls_winrt", "libgnutl
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|ARM64 = Debug|ARM64
+ 		Debug|x64 = Debug|x64
+ 		Debug|x86 = Debug|x86
++		DebugDLL|ARM64 = DebugDLL|ARM64
+ 		DebugDLL|x64 = DebugDLL|x64
+ 		DebugDLL|x86 = DebugDLL|x86
++		DebugDLLWinRT|ARM64 = DebugDLLWinRT|ARM64
+ 		DebugDLLWinRT|x64 = DebugDLLWinRT|x64
+ 		DebugDLLWinRT|x86 = DebugDLLWinRT|x86
++		DebugWinRT|ARM64 = DebugWinRT|ARM64
+ 		DebugWinRT|x64 = DebugWinRT|x64
+ 		DebugWinRT|x86 = DebugWinRT|x86
++		Release|ARM64 = Release|ARM64
+ 		Release|x64 = Release|x64
+ 		Release|x86 = Release|x86
++		ReleaseDLL|ARM64 = ReleaseDLL|ARM64
+ 		ReleaseDLL|x64 = ReleaseDLL|x64
+ 		ReleaseDLL|x86 = ReleaseDLL|x86
++		ReleaseDLLStaticDeps|ARM64 = ReleaseDLLStaticDeps|ARM64
+ 		ReleaseDLLStaticDeps|x64 = ReleaseDLLStaticDeps|x64
+ 		ReleaseDLLStaticDeps|x86 = ReleaseDLLStaticDeps|x86
++		ReleaseDLLWinRT|ARM64 = ReleaseDLLWinRT|ARM64
+ 		ReleaseDLLWinRT|x64 = ReleaseDLLWinRT|x64
+ 		ReleaseDLLWinRT|x86 = ReleaseDLLWinRT|x86
++		ReleaseDLLWinRTStaticDeps|ARM64 = ReleaseDLLWinRTStaticDeps|ARM64
+ 		ReleaseDLLWinRTStaticDeps|x64 = ReleaseDLLWinRTStaticDeps|x64
+ 		ReleaseDLLWinRTStaticDeps|x86 = ReleaseDLLWinRTStaticDeps|x86
++		ReleaseWinRT|ARM64 = ReleaseWinRT|ARM64
+ 		ReleaseWinRT|x64 = ReleaseWinRT|x64
+ 		ReleaseWinRT|x86 = ReleaseWinRT|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x64.ActiveCfg = Debug|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x64.Build.0 = Debug|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x86.Build.0 = Debug|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.ActiveCfg = Release|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.Build.0 = Release|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x64.ActiveCfg = Release|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x64.Build.0 = Release|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x86.ActiveCfg = Release|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x86.Build.0 = Release|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x64.Build.0 = ReleaseDLLStaticDeps|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseDLLStaticDeps|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|x64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseDLLWinRTStaticDeps|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+diff --git a/SMP/libgnutls.vcxproj b/SMP/libgnutls.vcxproj
+index a1ae62b72..1b6253319 100644
+--- a/SMP/libgnutls.vcxproj
++++ b/SMP/libgnutls.vcxproj
+@@ -1,5 +1,67 @@
+-﻿<?xml version="1.0" encoding="utf-8"?>
++<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|Win32">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|x64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|ARM64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|Win32">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|x64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|Win32">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|x64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{6F610EE8-7F59-4191-AB88-F63843267C02}</ProjectGuid>
+     <RootNamespace>gnutls</RootNamespace>
+@@ -111,6 +173,59 @@ rmdir /s /q "$(OutDir)"\include\gnutls
+ )
+ if exist $(OutDir)\licenses\gnutls.txt (
+ del /f /q $(OutDir)\licenses\gnutls.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <PreprocessorDefinitions>__NASM_VERSION_ID__=0x02030000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;ASN1_BUILDING;ASN1_STATIC;LOCALEDIR=".";__func__=__FUNCTION__;USE_WINDOWS_THREADS;GNUTLS_LIBRARY_SONAME="libgnutlsd";NETTLE_LIBRARY_SONAME="libnettled";HOGWEED_LIBRARY_SONAME="libhogweedd";GMP_LIBRARY_SONAME="libgmpd";DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;.\lib;..\lib;..\lib\accelerated;..\lib\auth;..\lib\ext;..\lib\extras;..\lib\minitasn1;..\lib\nettle;..\lib\nettle\int;..\lib\x509;.\lib\x509;..\lib\includes;..\lib\accelerated\x86;..\gnulib\lib;.\gnulib\lib;.\gnulib\lib\uninorm;.\libtasn1;..\devel\libtasn1\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;4244;4018;4090;4047;4024;4311;4116;4146;4312;4028;4334;4101;4013;4020;4068;4003;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Lib>
++      <AdditionalDependencies>Crypt32.lib;Ws2_32.lib;Kernel32.lib;Ncrypt.lib;libhogweedd.lib;libgmpd.lib;libnettled.lib;libzlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4042 %(AdditionalOptions)</AdditionalOptions>
++    </Lib>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\gnutls
++copy ..\lib\includes\gnutls\*.h "$(OutDir)"\include\gnutls
++copy .\gnutls\gnutls.h "$(OutDir)"\include\gnutls
++mkdir $(OutDir)\licenses
++copy ..\LICENSE $(OutDir)\licenses\gnutls.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\lib\includes\gnutls\gnutls.h (
++del ..\lib\includes\gnutls\gnutls.h
++)
++if exist ..\lib\priority_options.h (
++del ..\lib\priority_options.h
++)
++if exist ..\lib\x509\supported_exts.h (
++del ..\lib\x509\supported_exts.h
++)
++if exist "$(OutDir)"\include\gnutls (
++rd /s /q "$(OutDir)"\include\gnutls
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gnutls (
++rmdir /s /q "$(OutDir)"\include\gnutls
++)
++if exist $(OutDir)\licenses\gnutls.txt (
++del /f /q $(OutDir)\licenses\gnutls.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -219,6 +334,60 @@ rmdir /s /q "$(OutDir)"\include\gnutls
+ )
+ if exist $(OutDir)\licenses\gnutls.txt (
+ del /f /q $(OutDir)\licenses\gnutls.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <PreprocessorDefinitions>__NASM_VERSION_ID__=0x02030000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;ASN1_BUILDING;ASN1_STATIC;LOCALEDIR=".";__func__=__FUNCTION__;USE_WINDOWS_THREADS;GNUTLS_LIBRARY_SONAME="gnutlsd";NETTLE_LIBRARY_SONAME="nettled";HOGWEED_LIBRARY_SONAME="hogweedd";GMP_LIBRARY_SONAME="gmpd";DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;.\lib;..\lib;..\lib\accelerated;..\lib\auth;..\lib\ext;..\lib\extras;..\lib\minitasn1;..\lib\nettle;..\lib\nettle\int;..\lib\x509;.\lib\x509;..\lib\includes;..\lib\accelerated\x86;..\gnulib\lib;.\gnulib\lib;.\gnulib\lib\uninorm;.\libtasn1;..\devel\libtasn1\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;4244;4018;4090;4047;4024;4311;4116;4146;4312;4028;4334;4101;4013;4020;4068;4003;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libgnutls.def</ModuleDefinitionFile>
++      <AdditionalDependencies>Crypt32.lib;Ws2_32.lib;Kernel32.lib;Ncrypt.lib;hogweedd.lib;gmpd.lib;nettled.lib;zlibd.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4042 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\gnutls
++copy ..\lib\includes\gnutls\*.h "$(OutDir)"\include\gnutls
++copy .\gnutls\gnutls.h "$(OutDir)"\include\gnutls
++mkdir $(OutDir)\licenses
++copy ..\LICENSE $(OutDir)\licenses\gnutls.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\lib\includes\gnutls\gnutls.h (
++del ..\lib\includes\gnutls\gnutls.h
++)
++if exist ..\lib\priority_options.h (
++del ..\lib\priority_options.h
++)
++if exist ..\lib\x509\supported_exts.h (
++del ..\lib\x509\supported_exts.h
++)
++if exist "$(OutDir)"\include\gnutls (
++rd /s /q "$(OutDir)"\include\gnutls
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gnutls (
++rmdir /s /q "$(OutDir)"\include\gnutls
++)
++if exist $(OutDir)\licenses\gnutls.txt (
++del /f /q $(OutDir)\licenses\gnutls.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -325,6 +494,59 @@ rmdir /s /q "$(OutDir)"\include\gnutls
+ )
+ if exist $(OutDir)\licenses\gnutls.txt (
+ del /f /q $(OutDir)\licenses\gnutls.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <PreprocessorDefinitions>__NASM_VERSION_ID__=0x02030000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;ASN1_BUILDING;ASN1_STATIC;LOCALEDIR=".";__func__=__FUNCTION__;USE_WINDOWS_THREADS;GNUTLS_LIBRARY_SONAME="libgnutls";NETTLE_LIBRARY_SONAME="libnettle";HOGWEED_LIBRARY_SONAME="libhogweed";GMP_LIBRARY_SONAME="libgmp";%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;.\lib;..\lib;..\lib\accelerated;..\lib\auth;..\lib\ext;..\lib\extras;..\lib\minitasn1;..\lib\nettle;..\lib\nettle\int;..\lib\x509;.\lib\x509;..\lib\includes;..\lib\accelerated\x86;..\gnulib\lib;.\gnulib\lib;.\gnulib\lib\uninorm;.\libtasn1;..\devel\libtasn1\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;4244;4018;4090;4047;4024;4311;4116;4146;4312;4028;4334;4101;4013;4020;4068;4003;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Lib>
++      <AdditionalDependencies>Crypt32.lib;Ws2_32.lib;Kernel32.lib;Ncrypt.lib;libhogweed.lib;libgmp.lib;libnettle.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4042 %(AdditionalOptions)</AdditionalOptions>
++    </Lib>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\gnutls
++copy ..\lib\includes\gnutls\*.h "$(OutDir)"\include\gnutls
++copy .\gnutls\gnutls.h "$(OutDir)"\include\gnutls
++mkdir $(OutDir)\licenses
++copy ..\LICENSE $(OutDir)\licenses\gnutls.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\lib\includes\gnutls\gnutls.h (
++del ..\lib\includes\gnutls\gnutls.h
++)
++if exist ..\lib\priority_options.h (
++del ..\lib\priority_options.h
++)
++if exist ..\lib\x509\supported_exts.h (
++del ..\lib\x509\supported_exts.h
++)
++if exist "$(OutDir)"\include\gnutls (
++rd /s /q "$(OutDir)"\include\gnutls
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gnutls (
++rmdir /s /q "$(OutDir)"\include\gnutls
++)
++if exist $(OutDir)\licenses\gnutls.txt (
++del /f /q $(OutDir)\licenses\gnutls.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -487,6 +709,60 @@ rmdir /s /q "$(OutDir)"\include\gnutls
+ )
+ if exist $(OutDir)\licenses\gnutls.txt (
+ del /f /q $(OutDir)\licenses\gnutls.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <PreprocessorDefinitions>__NASM_VERSION_ID__=0x02030000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;ASN1_BUILDING;ASN1_STATIC;LOCALEDIR=".";__func__=__FUNCTION__;USE_WINDOWS_THREADS;GNUTLS_LIBRARY_SONAME="gnutls";NETTLE_LIBRARY_SONAME="nettle";HOGWEED_LIBRARY_SONAME="hogweed";GMP_LIBRARY_SONAME="gmp";%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;.\lib;..\lib;..\lib\accelerated;..\lib\auth;..\lib\ext;..\lib\extras;..\lib\minitasn1;..\lib\nettle;..\lib\nettle\int;..\lib\x509;.\lib\x509;..\lib\includes;..\lib\accelerated\x86;..\gnulib\lib;.\gnulib\lib;.\gnulib\lib\uninorm;.\libtasn1;..\devel\libtasn1\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;4244;4018;4090;4047;4024;4311;4116;4146;4312;4028;4334;4101;4013;4020;4068;4003;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libgnutls.def</ModuleDefinitionFile>
++      <AdditionalDependencies>Crypt32.lib;Ws2_32.lib;Kernel32.lib;Ncrypt.lib;hogweed.lib;gmp.lib;nettle.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4042 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\gnutls
++copy ..\lib\includes\gnutls\*.h "$(OutDir)"\include\gnutls
++copy .\gnutls\gnutls.h "$(OutDir)"\include\gnutls
++mkdir $(OutDir)\licenses
++copy ..\LICENSE $(OutDir)\licenses\gnutls.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\lib\includes\gnutls\gnutls.h (
++del ..\lib\includes\gnutls\gnutls.h
++)
++if exist ..\lib\priority_options.h (
++del ..\lib\priority_options.h
++)
++if exist ..\lib\x509\supported_exts.h (
++del ..\lib\x509\supported_exts.h
++)
++if exist "$(OutDir)"\include\gnutls (
++rd /s /q "$(OutDir)"\include\gnutls
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gnutls (
++rmdir /s /q "$(OutDir)"\include\gnutls
++)
++if exist $(OutDir)\licenses\gnutls.txt (
++del /f /q $(OutDir)\licenses\gnutls.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -541,6 +817,60 @@ rmdir /s /q "$(OutDir)"\include\gnutls
+ )
+ if exist $(OutDir)\licenses\gnutls.txt (
+ del /f /q $(OutDir)\licenses\gnutls.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <PreprocessorDefinitions>__NASM_VERSION_ID__=0x02030000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;ASN1_BUILDING;ASN1_STATIC;LOCALEDIR=".";__func__=__FUNCTION__;USE_WINDOWS_THREADS;GNUTLS_LIBRARY_SONAME="libgnutls";NETTLE_LIBRARY_SONAME="libnettle";HOGWEED_LIBRARY_SONAME="libhogweed";GMP_LIBRARY_SONAME="libgmp";%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;.\lib;..\lib;..\lib\accelerated;..\lib\auth;..\lib\ext;..\lib\extras;..\lib\minitasn1;..\lib\nettle;..\lib\nettle\int;..\lib\x509;.\lib\x509;..\lib\includes;..\lib\accelerated\x86;..\gnulib\lib;.\gnulib\lib;.\gnulib\lib\uninorm;.\libtasn1;..\devel\libtasn1\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4267;4244;4018;4090;4047;4024;4311;4116;4146;4312;4028;4334;4101;4013;4020;4068;4003;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libgnutls.def</ModuleDefinitionFile>
++      <AdditionalDependencies>Crypt32.lib;Ws2_32.lib;Kernel32.lib;Ncrypt.lib;libhogweed.lib;libgmp.lib;libnettle.lib;libzlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4042 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\gnutls
++copy ..\lib\includes\gnutls\*.h "$(OutDir)"\include\gnutls
++copy .\gnutls\gnutls.h "$(OutDir)"\include\gnutls
++mkdir $(OutDir)\licenses
++copy ..\LICENSE $(OutDir)\licenses\gnutls.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\lib\includes\gnutls\gnutls.h (
++del ..\lib\includes\gnutls\gnutls.h
++)
++if exist ..\lib\priority_options.h (
++del ..\lib\priority_options.h
++)
++if exist ..\lib\x509\supported_exts.h (
++del ..\lib\x509\supported_exts.h
++)
++if exist "$(OutDir)"\include\gnutls (
++rd /s /q "$(OutDir)"\include\gnutls
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\gnutls (
++rmdir /s /q "$(OutDir)"\include\gnutls
++)
++if exist $(OutDir)\licenses\gnutls.txt (
++del /f /q $(OutDir)\licenses\gnutls.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -550,4 +880,4 @@ del /f /q $(OutDir)\licenses\gnutls.txt
+   <ImportGroup Label="ExtensionTargets">
+     <Import Project="$(VCTargetsPath)\BuildCustomizations\yasm.targets" />
+   </ImportGroup>
+-</Project>
+\ No newline at end of file
++</Project>
+diff --git a/SMP/libgnutls_deps.sln b/SMP/libgnutls_deps.sln
+index 531abc84a..58f8e0bd4 100644
+--- a/SMP/libgnutls_deps.sln
++++ b/SMP/libgnutls_deps.sln
+@@ -1,6 +1,7 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-VisualStudioVersion = 12.0.30501.0
++# Visual Studio Version 17
++VisualStudioVersion = 17.13.35931.197 d17.13
+ MinimumVisualStudioVersion = 12.0.30501.0
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgnutls", "libgnutls.vcxproj", "{6F610EE8-7F59-4191-AB88-F63843267C02}"
+ 	ProjectSection(ProjectDependencies) = postProject
+@@ -52,325 +53,535 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libzlib_winrt", "..\..\zlib
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|ARM64 = Debug|ARM64
+ 		Debug|x64 = Debug|x64
+ 		Debug|x86 = Debug|x86
++		DebugDLL|ARM64 = DebugDLL|ARM64
+ 		DebugDLL|x64 = DebugDLL|x64
+ 		DebugDLL|x86 = DebugDLL|x86
++		DebugDLLWinRT|ARM64 = DebugDLLWinRT|ARM64
+ 		DebugDLLWinRT|x64 = DebugDLLWinRT|x64
+ 		DebugDLLWinRT|x86 = DebugDLLWinRT|x86
++		DebugWinRT|ARM64 = DebugWinRT|ARM64
+ 		DebugWinRT|x64 = DebugWinRT|x64
+ 		DebugWinRT|x86 = DebugWinRT|x86
++		Release|ARM64 = Release|ARM64
+ 		Release|x64 = Release|x64
+ 		Release|x86 = Release|x86
++		ReleaseDLL|ARM64 = ReleaseDLL|ARM64
+ 		ReleaseDLL|x64 = ReleaseDLL|x64
+ 		ReleaseDLL|x86 = ReleaseDLL|x86
++		ReleaseDLLStaticDeps|ARM64 = ReleaseDLLStaticDeps|ARM64
+ 		ReleaseDLLStaticDeps|x64 = ReleaseDLLStaticDeps|x64
+ 		ReleaseDLLStaticDeps|x86 = ReleaseDLLStaticDeps|x86
++		ReleaseDLLWinRT|ARM64 = ReleaseDLLWinRT|ARM64
+ 		ReleaseDLLWinRT|x64 = ReleaseDLLWinRT|x64
+ 		ReleaseDLLWinRT|x86 = ReleaseDLLWinRT|x86
++		ReleaseDLLWinRTStaticDeps|ARM64 = ReleaseDLLWinRTStaticDeps|ARM64
+ 		ReleaseDLLWinRTStaticDeps|x64 = ReleaseDLLWinRTStaticDeps|x64
+ 		ReleaseDLLWinRTStaticDeps|x86 = ReleaseDLLWinRTStaticDeps|x86
++		ReleaseWinRT|ARM64 = ReleaseWinRT|ARM64
+ 		ReleaseWinRT|x64 = ReleaseWinRT|x64
+ 		ReleaseWinRT|x86 = ReleaseWinRT|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x64.ActiveCfg = Debug|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x64.Build.0 = Debug|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Debug|x86.Build.0 = Debug|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.ActiveCfg = Release|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.Build.0 = Release|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x64.ActiveCfg = Release|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x64.Build.0 = Release|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x86.ActiveCfg = Release|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.Release|x86.Build.0 = Release|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x64.Build.0 = ReleaseDLLStaticDeps|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseDLLStaticDeps|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{6F610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseDLLWinRTStaticDeps|Win32
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{AF610EE8-7F59-4191-AB88-F63843267C02}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.ActiveCfg = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.Build.0 = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.Build.0 = Debug|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.ActiveCfg = Release|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.Build.0 = Release|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.Build.0 = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.ActiveCfg = Release|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.Build.0 = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.Build.0 = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.Build.0 = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.ActiveCfg = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.Build.0 = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.Build.0 = Debug|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.ActiveCfg = Release|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.Build.0 = Release|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.Build.0 = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.ActiveCfg = Release|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.Build.0 = Release|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.Build.0 = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.Build.0 = Release|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.ActiveCfg = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.Build.0 = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.Build.0 = Debug|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.ActiveCfg = Release|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.Build.0 = Release|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.Build.0 = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.ActiveCfg = Release|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.Build.0 = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x64.Build.0 = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.Build.0 = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x64.ActiveCfg = Debug|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x64.Build.0 = Debug|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x86.Build.0 = Debug|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.ActiveCfg = Release|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.Build.0 = Release|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x64.ActiveCfg = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x64.Build.0 = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x86.ActiveCfg = Release|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x86.Build.0 = Release|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|x64.Build.0 = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|x86.Build.0 = Release|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{CA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{AA9A4A38-CC63-4BDB-8CFB-E058965DDA32}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+diff --git a/SMP/libgnutls_files.props b/SMP/libgnutls_files.props
+index 563d87e6a..01fd1136b 100644
+--- a/SMP/libgnutls_files.props
++++ b/SMP/libgnutls_files.props
+@@ -314,25 +314,51 @@
+     <ClCompile Include="..\lib\accelerated\afalg.c" />
+     <ClCompile Include="..\lib\accelerated\cryptodev-gcm.c" />
+     <ClCompile Include="..\lib\accelerated\cryptodev.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-cbc-x86-aesni.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-cbc-x86-ssse3.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-ccm-x86-aesni.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-gcm-padlock.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-gcm-x86-aesni.c" />
++    <ClCompile Include="..\lib\accelerated\x86\aes-cbc-x86-aesni.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-cbc-x86-ssse3.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-ccm-x86-aesni.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-gcm-padlock.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-gcm-x86-aesni.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
+     <ClCompile Include="..\lib\accelerated\x86\aes-gcm-x86-pclmul-avx.c">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </ClCompile>
+     <ClCompile Include="..\lib\accelerated\x86\aes-gcm-x86-pclmul.c">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+-    </ClCompile>
+-    <ClCompile Include="..\lib\accelerated\x86\aes-gcm-x86-ssse3.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-padlock.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\aes-xts-x86-aesni.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\hmac-padlock.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\hmac-x86-ssse3.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\sha-padlock.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\sha-x86-ssse3.c" />
+-    <ClCompile Include="..\lib\accelerated\x86\x86-common.c" />
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-gcm-x86-ssse3.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-padlock.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\aes-xts-x86-aesni.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\hmac-padlock.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\hmac-x86-ssse3.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\sha-padlock.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\sha-x86-ssse3.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\lib\accelerated\x86\x86-common.c">
++      <ExcludedFromBuild Condition="'$(Platform)'=='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
+     <ClCompile Include="..\lib\alert.c" />
+     <ClCompile Include="..\lib\algorithms\cert_types.c" />
+     <ClCompile Include="..\lib\algorithms\ciphers.c" />
+@@ -618,52 +644,52 @@
+   </ItemGroup>
+   <ItemGroup>
+     <YASM Include="lib\accelerated\x86\coff\aes-ssse3-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\aes-ssse3-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\aesni-gcm-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\aesni-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\aesni-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\e_padlock-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\e_padlock-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\ghash-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\ghash-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha1-ssse3-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha1-ssse3-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha256-avx-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha256-ssse3-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha256-ssse3-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha512-ssse3-x86.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="lib\accelerated\x86\coff\sha512-ssse3-x86_64.asm">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+   </ItemGroup>
+-</Project>
+\ No newline at end of file
++</Project>
+diff --git a/SMP/smp_deps.props b/SMP/smp_deps.props
+index 254b2a7bf..839d7b4c6 100644
+--- a/SMP/smp_deps.props
++++ b/SMP/smp_deps.props
+@@ -9,6 +9,10 @@
+       <Configuration>DebugDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -17,6 +21,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="ReleaseDLL|Win32">
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>Win32</Platform>
+@@ -25,6 +33,10 @@
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -33,6 +45,10 @@
+       <Configuration>Release</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="ReleaseDLLStaticDeps|Win32">
+       <Configuration>ReleaseDLLStaticDeps</Configuration>
+       <Platform>Win32</Platform>
+@@ -41,6 +57,10 @@
+       <Configuration>ReleaseDLLStaticDeps</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|ARM64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -61,6 +81,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+@@ -69,6 +93,10 @@
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -77,6 +105,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -87,6 +119,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -97,6 +134,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -120,6 +162,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <TargetName>lib$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <TargetName>$(RootNamespace)d</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -136,6 +186,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <TargetName>$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <TargetName>lib$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -152,6 +210,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <TargetName>lib$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <TargetName>$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -168,6 +234,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <TargetName>$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+     <TargetName>$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -184,6 +258,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
++    <TargetName>$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -220,6 +302,24 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -266,6 +366,28 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -316,6 +438,31 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -377,6 +524,36 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -438,8 +615,38 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+   <ItemGroup />
+-</Project>
+\ No newline at end of file
++</Project>

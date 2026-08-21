@@ -1,0 +1,3312 @@
+diff --git a/SMP/config.h b/SMP/config.h
+index ef25a376..42e1bf12 100644
+--- a/SMP/config.h
++++ b/SMP/config.h
+@@ -86,7 +86,10 @@
+ #define HAVE_NATIVE_sha3_permute 1
+ #define HAVE_NATIVE_umac_nh 1
+ #define HAVE_NATIVE_umac_nh_n 1
+-#else
++#elif !defined(_M_ARM64) && !defined(__aarch64__)
++/* The original #else here assumed "not x86_64 implies x86" and claimed the
++   32-bit x86 assembly routines. ARM64 has no assembly in this fork at all, so
++   it must claim none of them and use nettle's portable C throughout. */
+ #define HAVE_NATIVE_aes_decrypt 1
+ #define HAVE_NATIVE_aes_encrypt 1
+ #define HAVE_NATIVE_sha1_compress 1
+diff --git a/SMP/desdata.vcxproj b/SMP/desdata.vcxproj
+index 4d74b7a4..9f23ea38 100644
+--- a/SMP/desdata.vcxproj
++++ b/SMP/desdata.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -164,6 +202,42 @@ del ..\rotors.h
+     <PostBuildEvent>
+       <Command>desdata.exe rotors &gt; rotors.h
+ desdata.exe keymap &gt;keymap.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\keymap.h (
++del ..\keymap.h
++)
++if exist ..\rotors.h (
++del ..\rotors.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\desdata.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)desdata.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>desdata.exe rotors &gt; rotors.h
++desdata.exe keymap &gt;keymap.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -235,6 +309,42 @@ del ..\rotors.h
+     <PostBuildEvent>
+       <Command>desdata.exe rotors &gt; rotors.h
+ desdata.exe keymap &gt;keymap.h
++</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\keymap.h (
++del ..\keymap.h
++)
++if exist ..\rotors.h (
++del ..\rotors.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\desdata.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>desdata.exe rotors &gt; rotors.h
++desdata.exe keymap &gt;keymap.h
+ </Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/eccdata.vcxproj b/SMP/eccdata.vcxproj
+index 2dbbabaa..f384e9bc 100644
+--- a/SMP/eccdata.vcxproj
++++ b/SMP/eccdata.vcxproj
+@@ -1,6 +1,10 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+   <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -9,6 +13,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -43,6 +51,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>Application</ConfigurationType>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -59,6 +75,14 @@
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>Application</ConfigurationType>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
++    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -68,12 +92,18 @@
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
+   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+   </ImportGroup>
++  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="PropertySheets">
++    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
++  </ImportGroup>
+   <PropertyGroup Label="UserMacros" />
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+@@ -85,6 +115,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <LinkIncremental>true</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <OutDir>$(ProjectDir)</OutDir>
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+@@ -95,6 +129,10 @@
+     <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
+     <OutDir>$(ProjectDir)</OutDir>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <LinkIncremental>false</LinkIncremental>
++    <IntDir>$(SolutionDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <PreBuildEvent>
+       <Command>if exist ..\config.h (
+@@ -204,6 +242,62 @@ eccdata.exe 224 12 6 64 &gt; x86_64\ecc-224.h
+ eccdata.exe 256 14 6 64 &gt; x86_64\ecc-256.h
+ eccdata.exe 384 41 6 64 &gt; x86_64\ecc-384.h
+ eccdata.exe 521 56 6 64 &gt; x86_64\ecc-521.h
++eccdata.exe 255 14 6 64 &gt; x86_64\ecc-25519.h</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\ecc-192.h (
++del ..\ecc-192.h
++)
++if exist ..\ecc-224.h (
++del ..\ecc-224.h
++)
++if exist ..\ecc-256.h (
++del ..\ecc-256.h
++)
++if exist ..\ecc-384.h (
++del ..\ecc-384.h
++)
++if exist ..\ecc-521.h (
++del ..\ecc-521.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++      <Optimization>Disabled</Optimization>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\eccdata.exe</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)eccdata.pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++eccdata.exe 192 7 6 32 &gt; x86\ecc-192.h
++eccdata.exe 224 12 6 32 &gt; x86\ecc-224.h
++eccdata.exe 256 14 6 32 &gt; x86\ecc-256.h
++eccdata.exe 384 41 6 32 &gt; x86\ecc-384.h
++eccdata.exe 521 56 6 32 &gt; x86\ecc-521.h
++eccdata.exe 255 14 6 32 &gt; x86\ecc-25519.h
++mkdir x86_64
++eccdata.exe 192 7 6 64 &gt; x86_64\ecc-192.h
++eccdata.exe 224 12 6 64 &gt; x86_64\ecc-224.h
++eccdata.exe 256 14 6 64 &gt; x86_64\ecc-256.h
++eccdata.exe 384 41 6 64 &gt; x86_64\ecc-384.h
++eccdata.exe 521 56 6 64 &gt; x86_64\ecc-521.h
+ eccdata.exe 255 14 6 64 &gt; x86_64\ecc-25519.h</Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+@@ -315,6 +409,62 @@ eccdata.exe 224 12 6 64 &gt; x86_64\ecc-224.h
+ eccdata.exe 256 14 6 64 &gt; x86_64\ecc-256.h
+ eccdata.exe 384 41 6 64 &gt; x86_64\ecc-384.h
+ eccdata.exe 521 56 6 64 &gt; x86_64\ecc-521.h
++eccdata.exe 255 14 6 64 &gt; x86_64\ecc-25519.h</Command>
++    </PostBuildEvent>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\ecc-192.h (
++del ..\ecc-192.h
++)
++if exist ..\ecc-224.h (
++del ..\ecc-224.h
++)
++if exist ..\ecc-256.h (
++del ..\ecc-256.h
++)
++if exist ..\ecc-384.h (
++del ..\ecc-384.h
++)
++if exist ..\ecc-521.h (
++del ..\ecc-521.h
++)</Command>
++    </PreBuildEvent>
++    <ClCompile>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <PreprocessorDefinitions>_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <PrecompiledHeader>
++      </PrecompiledHeader>
++      <WarningLevel>Level3</WarningLevel>
++      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
++      <DisableSpecificWarnings>4244;4819;4146;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <OutputFile>.\eccdata.exe</OutputFile>
++      <SubSystem>Console</SubSystem>
++      <OptimizeReferences>true</OptimizeReferences>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <RandomizedBaseAddress>false</RandomizedBaseAddress>
++      <DataExecutionPrevention>
++      </DataExecutionPrevention>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir x86
++eccdata.exe 192 7 6 32 &gt; x86\ecc-192.h
++eccdata.exe 224 12 6 32 &gt; x86\ecc-224.h
++eccdata.exe 256 14 6 32 &gt; x86\ecc-256.h
++eccdata.exe 384 41 6 32 &gt; x86\ecc-384.h
++eccdata.exe 521 56 6 32 &gt; x86\ecc-521.h
++eccdata.exe 255 14 6 32 &gt; x86\ecc-25519.h
++mkdir x86_64
++eccdata.exe 192 7 6 64 &gt; x86_64\ecc-192.h
++eccdata.exe 224 12 6 64 &gt; x86_64\ecc-224.h
++eccdata.exe 256 14 6 64 &gt; x86_64\ecc-256.h
++eccdata.exe 384 41 6 64 &gt; x86_64\ecc-384.h
++eccdata.exe 521 56 6 64 &gt; x86_64\ecc-521.h
+ eccdata.exe 255 14 6 64 &gt; x86_64\ecc-25519.h</Command>
+     </PostBuildEvent>
+   </ItemDefinitionGroup>
+diff --git a/SMP/libhogweed.vcxproj b/SMP/libhogweed.vcxproj
+index 70bb5ff7..109f30e3 100644
+--- a/SMP/libhogweed.vcxproj
++++ b/SMP/libhogweed.vcxproj
+@@ -1,5 +1,67 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|Win32">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|x64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|ARM64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|Win32">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|x64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|Win32">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|x64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}</ProjectGuid>
+     <RootNamespace>hogweed</RootNamespace>
+@@ -248,6 +310,128 @@ rmdir /s /q "$(OutDir)"\include\nettle
+ )
+ if exist $(OutDir)\licenses\nettle.txt (
+ del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Lib>
++      <AdditionalDependencies>libnettled.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
++    </Lib>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -501,16 +685,17 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <AdditionalIncludeDirectories>.\;..\;.\x86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+     </ClCompile>
+-    <Lib>
+-      <AdditionalDependencies>libnettle.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    <Link>
++      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
++      <AdditionalDependencies>nettled.lib;gmpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
+-    </Lib>
++    </Link>
+     <PostBuildEvent>
+       <Command>mkdir "$(OutDir)"\include
+ mkdir "$(OutDir)"\include\nettle
+@@ -623,10 +808,10 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>.\;..\;.\x86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+     </ClCompile>
+     <Lib>
+@@ -745,17 +930,16 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <AdditionalIncludeDirectories>.\;..\;.\x86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+     </ClCompile>
+-    <Link>
+-      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
+-      <AdditionalDependencies>nettle.lib;gmp.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    <Lib>
++      <AdditionalDependencies>libnettle.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
+-    </Link>
++    </Lib>
+     <PostBuildEvent>
+       <Command>mkdir "$(OutDir)"\include
+ mkdir "$(OutDir)"\include\nettle
+@@ -868,17 +1052,16 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <AdditionalIncludeDirectories>.\;..\;.\x86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+     </ClCompile>
+-    <Link>
+-      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
++    <Lib>
+       <AdditionalDependencies>libnettle.lib;%(AdditionalDependencies)</AdditionalDependencies>
+       <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
+-    </Link>
++    </Lib>
+     <PostBuildEvent>
+       <Command>mkdir "$(OutDir)"\include
+ mkdir "$(OutDir)"\include\nettle
+@@ -991,10 +1174,10 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+-      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <AdditionalIncludeDirectories>.\;..\;.\x86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+     </ClCompile>
+     <Link>
+@@ -1114,7 +1297,499 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\x86;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
++      <AdditionalDependencies>libnettle.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
++      <AdditionalDependencies>nettle.lib;gmp.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
++      <AdditionalDependencies>nettle.lib;gmp.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|x64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4146;4267;4028;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libhogweed.def</ModuleDefinitionFile>
++      <AdditionalDependencies>libnettle.lib;%(AdditionalDependencies)</AdditionalDependencies>
++      <AdditionalOptions>/IGNORE:4006,4221,4078 %(AdditionalOptions)</AdditionalOptions>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;inline=__inline;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <AdditionalIncludeDirectories>.\;..\;.\x86_64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+diff --git a/SMP/libhogweed_files.props b/SMP/libhogweed_files.props
+index 47bde38c..826afa6e 100644
+--- a/SMP/libhogweed_files.props
++++ b/SMP/libhogweed_files.props
+@@ -262,25 +262,25 @@
+   </ItemGroup>
+   <ItemGroup>
+     <YASM Include="x86_64\ecc-curve25519-modp.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ecc-curve448-modp.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ecc-secp192r1-modp.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ecc-secp224r1-modp.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ecc-secp256r1-redc.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ecc-secp384r1-modp.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ecc-secp521r1-modp.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+   </ItemGroup>
+-</Project>
+\ No newline at end of file
++</Project>
+diff --git a/SMP/libnettle.sln b/SMP/libnettle.sln
+index 0795fa13..c52df3dc 100644
+--- a/SMP/libnettle.sln
++++ b/SMP/libnettle.sln
+@@ -1,6 +1,7 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-VisualStudioVersion = 12.0.30501.0
++# Visual Studio Version 17
++VisualStudioVersion = 17.13.35931.197 d17.13
+ MinimumVisualStudioVersion = 12.0.30501.0
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnettle", "libnettle.vcxproj", "{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}"
+ EndProject
+@@ -24,186 +25,312 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "eccdata", "eccdata.vcxproj"
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|ARM64 = Debug|ARM64
+ 		Debug|x64 = Debug|x64
+ 		Debug|x86 = Debug|x86
++		DebugDLL|ARM64 = DebugDLL|ARM64
+ 		DebugDLL|x64 = DebugDLL|x64
+ 		DebugDLL|x86 = DebugDLL|x86
++		DebugDLLWinRT|ARM64 = DebugDLLWinRT|ARM64
+ 		DebugDLLWinRT|x64 = DebugDLLWinRT|x64
+ 		DebugDLLWinRT|x86 = DebugDLLWinRT|x86
++		DebugWinRT|ARM64 = DebugWinRT|ARM64
+ 		DebugWinRT|x64 = DebugWinRT|x64
+ 		DebugWinRT|x86 = DebugWinRT|x86
++		Release|ARM64 = Release|ARM64
+ 		Release|x64 = Release|x64
+ 		Release|x86 = Release|x86
++		ReleaseDLL|ARM64 = ReleaseDLL|ARM64
+ 		ReleaseDLL|x64 = ReleaseDLL|x64
+ 		ReleaseDLL|x86 = ReleaseDLL|x86
++		ReleaseDLLStaticDeps|ARM64 = ReleaseDLLStaticDeps|ARM64
+ 		ReleaseDLLStaticDeps|x64 = ReleaseDLLStaticDeps|x64
+ 		ReleaseDLLStaticDeps|x86 = ReleaseDLLStaticDeps|x86
++		ReleaseDLLWinRT|ARM64 = ReleaseDLLWinRT|ARM64
+ 		ReleaseDLLWinRT|x64 = ReleaseDLLWinRT|x64
+ 		ReleaseDLLWinRT|x86 = ReleaseDLLWinRT|x86
++		ReleaseDLLWinRTStaticDeps|ARM64 = ReleaseDLLWinRTStaticDeps|ARM64
+ 		ReleaseDLLWinRTStaticDeps|x64 = ReleaseDLLWinRTStaticDeps|x64
+ 		ReleaseDLLWinRTStaticDeps|x86 = ReleaseDLLWinRTStaticDeps|x86
++		ReleaseWinRT|ARM64 = ReleaseWinRT|ARM64
+ 		ReleaseWinRT|x64 = ReleaseWinRT|x64
+ 		ReleaseWinRT|x86 = ReleaseWinRT|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.ActiveCfg = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.Build.0 = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.Build.0 = Debug|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.ActiveCfg = Release|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.Build.0 = Release|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.Build.0 = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.ActiveCfg = Release|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.Build.0 = Release|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.Build.0 = ReleaseDLLStaticDeps|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseDLLStaticDeps|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.ActiveCfg = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.Build.0 = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.Build.0 = Debug|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.ActiveCfg = Release|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.Build.0 = Release|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.Build.0 = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.ActiveCfg = Release|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.Build.0 = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.Build.0 = ReleaseDLLStaticDeps|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseDLLStaticDeps|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseDLLWinRTStaticDeps|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseDLLWinRTStaticDeps|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Debug|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Debug|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Release|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Release|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
+ 	EndGlobalSection
+diff --git a/SMP/libnettle.vcxproj b/SMP/libnettle.vcxproj
+index 54667ce8..36af23dd 100644
+--- a/SMP/libnettle.vcxproj
++++ b/SMP/libnettle.vcxproj
+@@ -1,5 +1,67 @@
+ ﻿<?xml version="1.0" encoding="utf-8"?>
+ <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
++  <ItemGroup Label="ProjectConfigurations">
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|Win32">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|x64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|Win32">
++      <Configuration>Debug</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|x64">
++      <Configuration>Debug</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|ARM64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|Win32">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|x64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|Win32">
++      <Configuration>Release</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|x64">
++      <Configuration>Release</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|Win32">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>Win32</Platform>
++    </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|x64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>x64</Platform>
++    </ProjectConfiguration>
++  </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <ProjectGuid>{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}</ProjectGuid>
+     <RootNamespace>nettle</RootNamespace>
+@@ -246,6 +308,127 @@ rmdir /s /q "$(OutDir)"\include\nettle
+ )
+ if exist $(OutDir)\licenses\nettle.txt (
+ del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4267;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Lib>
++      <AdditionalDependencies>libgmpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    </Lib>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -375,16 +558,259 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Parser>1</Parser>
+     </YASM>
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|x64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4267;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libnettle.def</ModuleDefinitionFile>
++      <AdditionalDependencies>gmpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4267;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libnettle.def</ModuleDefinitionFile>
++      <AdditionalDependencies>gmpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+       <DisableSpecificWarnings>4244;4146;4267;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+     </ClCompile>
+-    <Link>
+-      <ModuleDefinitionFile>libnettle.def</ModuleDefinitionFile>
+-      <AdditionalDependencies>gmpd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+-    </Link>
++    <Lib>
++      <AdditionalDependencies>libgmp.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    </Lib>
+     <PostBuildEvent>
+       <Command>mkdir "$(OutDir)"\include
+ mkdir "$(OutDir)"\include\nettle
+@@ -496,8 +922,9 @@ del /f /q $(OutDir)\licenses\nettle.txt
+       <Preprocessor>1</Preprocessor>
+       <Parser>1</Parser>
+     </YASM>
++    <ProjectReference />
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+@@ -619,7 +1046,7 @@ del /f /q $(OutDir)\licenses\nettle.txt
+     </YASM>
+     <ProjectReference />
+   </ItemDefinitionGroup>
+-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+     <ClCompile>
+       <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+       <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+@@ -1100,6 +1527,128 @@ rmdir /s /q "$(OutDir)"\include\nettle
+ )
+ if exist $(OutDir)\licenses\nettle.txt (
+ del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4267;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libnettle.def</ModuleDefinitionFile>
++      <AdditionalDependencies>gmp.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+@@ -1222,6 +1771,128 @@ rmdir /s /q "$(OutDir)"\include\nettle
+ )
+ if exist $(OutDir)\licenses\nettle.txt (
+ del /f /q $(OutDir)\licenses\nettle.txt
++)</Command>
++    </CustomBuildStep>
++    <YASM>
++      <Preprocessor>1</Preprocessor>
++      <Parser>1</Parser>
++    </YASM>
++  </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
++    <ClCompile>
++      <PreprocessorDefinitions>HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>.\;..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <DisableSpecificWarnings>4244;4146;4267;4098;%(DisableSpecificWarnings)</DisableSpecificWarnings>
++    </ClCompile>
++    <Link>
++      <ModuleDefinitionFile>libnettle.def</ModuleDefinitionFile>
++      <AdditionalDependencies>libgmp.lib;%(AdditionalDependencies)</AdditionalDependencies>
++    </Link>
++    <PostBuildEvent>
++      <Command>mkdir "$(OutDir)"\include
++mkdir "$(OutDir)"\include\nettle
++copy ..\aes.h "$(OutDir)"\include\nettle
++copy ..\arcfour.h "$(OutDir)"\include\nettle
++copy ..\arctwo.h "$(OutDir)"\include\nettle
++copy ..\asn1.h "$(OutDir)"\include\nettle
++copy ..\balloon.h "$(OutDir)"\include\nettle
++copy ..\base16.h "$(OutDir)"\include\nettle
++copy ..\base64.h "$(OutDir)"\include\nettle
++copy ..\bignum.h "$(OutDir)"\include\nettle
++copy ..\blowfish.h "$(OutDir)"\include\nettle
++copy ..\buffer.h "$(OutDir)"\include\nettle
++copy ..\camellia.h "$(OutDir)"\include\nettle
++copy ..\cast128.h "$(OutDir)"\include\nettle
++copy ..\cbc.h "$(OutDir)"\include\nettle
++copy ..\ccm.h "$(OutDir)"\include\nettle
++copy ..\cfb.h "$(OutDir)"\include\nettle
++copy ..\chacha.h "$(OutDir)"\include\nettle
++copy ..\chacha-poly1305.h "$(OutDir)"\include\nettle
++copy ..\cmac.h "$(OutDir)"\include\nettle
++copy ..\curve25519.h "$(OutDir)"\include\nettle
++copy ..\curve448.h "$(OutDir)"\include\nettle
++copy ..\ctr.h "$(OutDir)"\include\nettle
++copy ..\des.h "$(OutDir)"\include\nettle
++copy ..\drbg-ctr.h "$(OutDir)"\include\nettle
++copy ..\dsa.h "$(OutDir)"\include\nettle
++copy ..\dsa-compat.h "$(OutDir)"\include\nettle
++copy ..\eax.h "$(OutDir)"\include\nettle
++copy ..\ecc.h "$(OutDir)"\include\nettle
++copy ..\ecc-curve.h "$(OutDir)"\include\nettle
++copy ..\ecdsa.h "$(OutDir)"\include\nettle
++copy ..\eddsa.h "$(OutDir)"\include\nettle
++copy ..\gcm.h "$(OutDir)"\include\nettle
++copy ..\gostdsa.h "$(OutDir)"\include\nettle
++copy ..\gosthash94.h "$(OutDir)"\include\nettle
++copy ..\hmac.h "$(OutDir)"\include\nettle
++copy ..\hkdf.h "$(OutDir)"\include\nettle
++copy ..\knuth-lfib.h "$(OutDir)"\include\nettle
++copy ..\macros.h "$(OutDir)"\include\nettle
++copy ..\md2.h "$(OutDir)"\include\nettle
++copy ..\md4.h "$(OutDir)"\include\nettle
++copy ..\md5.h "$(OutDir)"\include\nettle
++copy ..\md5-compat.h "$(OutDir)"\include\nettle
++copy ..\memops.h "$(OutDir)"\include\nettle
++copy ..\memxor.h "$(OutDir)"\include\nettle
++copy ..\nettle-meta.h "$(OutDir)"\include\nettle
++copy ..\nettle-types.h "$(OutDir)"\include\nettle
++copy ..\nist-keywrap.h "$(OutDir)"\include\nettle
++copy ..\ocb.h "$(OutDir)"\include\nettle
++copy ..\pbkdf2.h "$(OutDir)"\include\nettle
++copy ..\pgp.h "$(OutDir)"\include\nettle
++copy ..\pkcs1.h "$(OutDir)"\include\nettle
++copy ..\pss.h "$(OutDir)"\include\nettle
++copy ..\pss-mgf1.h "$(OutDir)"\include\nettle
++copy ..\poly1305.h "$(OutDir)"\include\nettle
++copy ..\realloc.h "$(OutDir)"\include\nettle
++copy ..\ripemd160.h "$(OutDir)"\include\nettle
++copy ..\rsa.h "$(OutDir)"\include\nettle
++copy ..\salsa20.h "$(OutDir)"\include\nettle
++copy ..\serpent.h "$(OutDir)"\include\nettle
++copy ..\sexp.h "$(OutDir)"\include\nettle
++copy ..\sha.h "$(OutDir)"\include\nettle
++copy ..\sha1.h "$(OutDir)"\include\nettle
++copy ..\sha2.h "$(OutDir)"\include\nettle
++copy ..\sha3.h "$(OutDir)"\include\nettle
++copy ..\sm3.h "$(OutDir)"\include\nettle
++copy ..\sm4.h "$(OutDir)"\include\nettle
++copy ..\siv-cmac.h "$(OutDir)"\include\nettle
++copy ..\siv-gcm.h "$(OutDir)"\include\nettle
++copy ..\streebog.h "$(OutDir)"\include\nettle
++copy ..\twofish.h "$(OutDir)"\include\nettle
++copy ..\umac.h "$(OutDir)"\include\nettle
++copy ..\xts.h "$(OutDir)"\include\nettle
++copy ..\yarrow.h "$(OutDir)"\include\nettle
++copy version.h "$(OutDir)"\include\nettle
++mkdir $(OutDir)\licenses
++copy ..\COPYING.LESSERv3 $(OutDir)\licenses\nettle.txt</Command>
++    </PostBuildEvent>
++    <PreBuildEvent>
++      <Command>if exist ..\config.h (
++del ..\config.h
++)
++if exist ..\nettle-stdint.h (
++del ..\nettle-stdint.h
++)
++if exist ..\version.h (
++del ..\version.h
++)
++if exist "$(OutDir)"\include\nettle (
++rd /s /q "$(OutDir)"\include\nettle
++cd ../
++cd $(ProjectDir)
++)</Command>
++    </PreBuildEvent>
++    <CustomBuildStep>
++      <Message>Custom Clean Step</Message>
++    </CustomBuildStep>
++    <CustomBuildStep>
++      <Outputs>force_clean</Outputs>
++      <Command>if exist "$(OutDir)"\include\nettle (
++rmdir /s /q "$(OutDir)"\include\nettle
++)
++if exist $(OutDir)\licenses\nettle.txt (
++del /f /q $(OutDir)\licenses\nettle.txt
+ )</Command>
+     </CustomBuildStep>
+     <YASM>
+diff --git a/SMP/libnettle_deps.sln b/SMP/libnettle_deps.sln
+index e29aac06..86ad49f9 100644
+--- a/SMP/libnettle_deps.sln
++++ b/SMP/libnettle_deps.sln
+@@ -1,6 +1,7 @@
+ ﻿
+ Microsoft Visual Studio Solution File, Format Version 12.00
+-VisualStudioVersion = 12.0.30501.0
++# Visual Studio Version 17
++VisualStudioVersion = 17.13.35931.197 d17.13
+ MinimumVisualStudioVersion = 12.0.30501.0
+ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnettle", "libnettle.vcxproj", "{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}"
+ 	ProjectSection(ProjectDependencies) = postProject
+@@ -38,245 +39,411 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgmp_winrt", "..\..\gmp\S
+ EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
++		Debug|ARM64 = Debug|ARM64
+ 		Debug|x64 = Debug|x64
+ 		Debug|x86 = Debug|x86
++		DebugDLL|ARM64 = DebugDLL|ARM64
+ 		DebugDLL|x64 = DebugDLL|x64
+ 		DebugDLL|x86 = DebugDLL|x86
++		DebugDLLWinRT|ARM64 = DebugDLLWinRT|ARM64
+ 		DebugDLLWinRT|x64 = DebugDLLWinRT|x64
+ 		DebugDLLWinRT|x86 = DebugDLLWinRT|x86
++		DebugWinRT|ARM64 = DebugWinRT|ARM64
+ 		DebugWinRT|x64 = DebugWinRT|x64
+ 		DebugWinRT|x86 = DebugWinRT|x86
++		Release|ARM64 = Release|ARM64
+ 		Release|x64 = Release|x64
+ 		Release|x86 = Release|x86
++		ReleaseDLL|ARM64 = ReleaseDLL|ARM64
+ 		ReleaseDLL|x64 = ReleaseDLL|x64
+ 		ReleaseDLL|x86 = ReleaseDLL|x86
++		ReleaseDLLStaticDeps|ARM64 = ReleaseDLLStaticDeps|ARM64
+ 		ReleaseDLLStaticDeps|x64 = ReleaseDLLStaticDeps|x64
+ 		ReleaseDLLStaticDeps|x86 = ReleaseDLLStaticDeps|x86
++		ReleaseDLLWinRT|ARM64 = ReleaseDLLWinRT|ARM64
+ 		ReleaseDLLWinRT|x64 = ReleaseDLLWinRT|x64
+ 		ReleaseDLLWinRT|x86 = ReleaseDLLWinRT|x86
++		ReleaseDLLWinRTStaticDeps|ARM64 = ReleaseDLLWinRTStaticDeps|ARM64
+ 		ReleaseDLLWinRTStaticDeps|x64 = ReleaseDLLWinRTStaticDeps|x64
+ 		ReleaseDLLWinRTStaticDeps|x86 = ReleaseDLLWinRTStaticDeps|x86
++		ReleaseWinRT|ARM64 = ReleaseWinRT|ARM64
+ 		ReleaseWinRT|x64 = ReleaseWinRT|x64
+ 		ReleaseWinRT|x86 = ReleaseWinRT|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.ActiveCfg = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.Build.0 = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.Build.0 = Debug|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.ActiveCfg = Release|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.Build.0 = Release|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.Build.0 = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.ActiveCfg = Release|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.Build.0 = Release|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.Build.0 = ReleaseDLLStaticDeps|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseDLLStaticDeps|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{070FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.ActiveCfg = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.Build.0 = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.Build.0 = Debug|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.ActiveCfg = Release|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.Build.0 = Release|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.Build.0 = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.ActiveCfg = Release|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.Build.0 = Release|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLLStaticDeps|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLLStaticDeps|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.Build.0 = ReleaseDLLStaticDeps|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseDLLStaticDeps|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLStaticDeps|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLStaticDeps|Win32
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{200F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseDLLWinRTStaticDeps|Win32
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A70FEF2B-0C3F-4F33-9D3C-53C7330BF518}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseDLLWinRTStaticDeps|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseDLLWinRTStaticDeps|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseDLLWinRTStaticDeps|Win32
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A00F3D3C-8B84-46D8-953A-6C0EBD283B5C}.ReleaseWinRT|x86.Build.0 = ReleaseWinRT|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Debug|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.Release|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{90BC19D8-3074-4BB6-BE35-58D46113CBE8}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Debug|ARM64.ActiveCfg = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Debug|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Debug|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|ARM64.ActiveCfg = Debug|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|ARM64.Build.0 = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLL|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugDLLWinRT|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Release|ARM64.ActiveCfg = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Release|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.Release|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLL|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRT|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{D8F82459-02FA-4495-A511-BE04A1D07D1A}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.ActiveCfg = Debug|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.Build.0 = Debug|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.ActiveCfg = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.Build.0 = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.ActiveCfg = Debug|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.Build.0 = Debug|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.ActiveCfg = DebugDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.Build.0 = DebugDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.ActiveCfg = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.Build.0 = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.ActiveCfg = DebugDLL|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.Build.0 = DebugDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.Build.0 = DebugDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.ActiveCfg = DebugDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.ActiveCfg = DebugDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.ActiveCfg = Debug|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.Build.0 = Debug|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.ActiveCfg = Debug|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.ActiveCfg = Debug|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.ActiveCfg = Release|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.Build.0 = Release|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.Build.0 = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.ActiveCfg = Release|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.Build.0 = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.ActiveCfg = ReleaseDLL|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.Build.0 = ReleaseDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x64.Build.0 = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.ActiveCfg = Release|Win32
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.Build.0 = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLL|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLL|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLL|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLL|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = Release|Win32
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.ActiveCfg = Release|ARM64
++		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.Build.0 = Release|ARM64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.ActiveCfg = Release|x64
+ 		{02B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.ActiveCfg = Release|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x64.ActiveCfg = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Debug|x86.ActiveCfg = DebugWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLL|x86.ActiveCfg = DebugDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.ActiveCfg = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.ActiveCfg = DebugDLLWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugDLLWinRT|x86.Build.0 = DebugDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.ActiveCfg = DebugWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|ARM64.Build.0 = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.ActiveCfg = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x64.Build.0 = DebugWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.ActiveCfg = DebugWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.DebugWinRT|x86.Build.0 = DebugWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.Release|x86.ActiveCfg = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLL|x86.ActiveCfg = ReleaseDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.ActiveCfg = DebugDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|ARM64.Build.0 = DebugDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.ActiveCfg = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.ActiveCfg = ReleaseDLLWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRT|x86.Build.0 = ReleaseDLLWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.ActiveCfg = ReleaseDLLWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|ARM64.Build.0 = ReleaseDLLWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x86.ActiveCfg = ReleaseWinRT|Win32
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseDLLWinRTStaticDeps|x86.Build.0 = ReleaseWinRT|Win32
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.ActiveCfg = ReleaseWinRT|x64
++		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|ARM64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.ActiveCfg = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x64.Build.0 = ReleaseWinRT|x64
+ 		{A2B94302-23D6-43EF-8865-95CDE99D5DC2}.ReleaseWinRT|x86.ActiveCfg = ReleaseWinRT|Win32
+diff --git a/SMP/libnettle_files.props b/SMP/libnettle_files.props
+index bd2e0a20..dfec0434 100644
+--- a/SMP/libnettle_files.props
++++ b/SMP/libnettle_files.props
+@@ -203,7 +203,7 @@
+     <ClCompile Include="..\eax-aes128.c" />
+     <ClCompile Include="..\eax.c" />
+     <ClCompile Include="..\fat-x86_64.c">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </ClCompile>
+     <ClCompile Include="..\gcm-aes.c" />
+     <ClCompile Include="..\gcm-aes128-meta.c" />
+@@ -303,6 +303,18 @@
+     <ClCompile Include="..\serpent-set-key.c" />
+     <ClCompile Include="..\sha1-meta.c" />
+     <ClCompile Include="..\sha1.c" />
++    <ClCompile Include="..\aes-decrypt-internal.c">
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\aes-encrypt-internal.c">
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\camellia-crypt-internal.c">
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
++    <ClCompile Include="..\sha1-compress.c">
++      <ExcludedFromBuild Condition="'$(Platform)'!='ARM64'">true</ExcludedFromBuild>
++    </ClCompile>
+     <ClCompile Include="..\sha224-meta.c" />
+     <ClCompile Include="..\sha256-compress-n.c">
+       <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+@@ -378,118 +390,118 @@
+   </ItemGroup>
+   <ItemGroup>
+     <YASM Include="x86\aes-decrypt-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86\aes-encrypt-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86\camellia-crypt-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86\sha1-compress.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='x64' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes-decrypt-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes-encrypt-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes128-decrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes128-encrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes192-decrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes192-encrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes256-decrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\aes256-encrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\camellia-crypt-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\chacha-core-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\cbc-aes128-encrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\cbc-aes192-encrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\cbc-aes256-encrypt-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\cpuid-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ghash-set-key-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ghash-update-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\ghash-update-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\memxor-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\memxor-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\memxor3.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\poly1305-blocks.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\poly1305-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\salsa20-core-internal.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\salsa20-2core.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\serpent-decrypt.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\serpent-encrypt.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\sha1-compress-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\sha1-compress-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\sha256-compress-n-2-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\sha256-compress-n-fat.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\sha3-permute.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\sha512-compress.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\umac-nh-n.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+     <YASM Include="x86_64\umac-nh.s">
+-      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
++      <ExcludedFromBuild Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='ARM64'">true</ExcludedFromBuild>
+     </YASM>
+   </ItemGroup>
+-</Project>
+\ No newline at end of file
++</Project>
+diff --git a/SMP/smp_deps.props b/SMP/smp_deps.props
+index 254b2a7b..839d7b4c 100644
+--- a/SMP/smp_deps.props
++++ b/SMP/smp_deps.props
+@@ -9,6 +9,10 @@
+       <Configuration>DebugDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="DebugDLL|ARM64">
++      <Configuration>DebugDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Debug|Win32">
+       <Configuration>Debug</Configuration>
+       <Platform>Win32</Platform>
+@@ -17,6 +21,10 @@
+       <Configuration>Debug</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Debug|ARM64">
++      <Configuration>Debug</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="ReleaseDLL|Win32">
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>Win32</Platform>
+@@ -25,6 +33,10 @@
+       <Configuration>ReleaseDLL</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLL|ARM64">
++      <Configuration>ReleaseDLL</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="Release|Win32">
+       <Configuration>Release</Configuration>
+       <Platform>Win32</Platform>
+@@ -33,6 +45,10 @@
+       <Configuration>Release</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="Release|ARM64">
++      <Configuration>Release</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+     <ProjectConfiguration Include="ReleaseDLLStaticDeps|Win32">
+       <Configuration>ReleaseDLLStaticDeps</Configuration>
+       <Platform>Win32</Platform>
+@@ -41,6 +57,10 @@
+       <Configuration>ReleaseDLLStaticDeps</Configuration>
+       <Platform>x64</Platform>
+     </ProjectConfiguration>
++    <ProjectConfiguration Include="ReleaseDLLStaticDeps|ARM64">
++      <Configuration>ReleaseDLLStaticDeps</Configuration>
++      <Platform>ARM64</Platform>
++    </ProjectConfiguration>
+   </ItemGroup>
+   <PropertyGroup Label="Globals">
+     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+@@ -61,6 +81,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+@@ -69,6 +93,10 @@
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>true</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>true</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -77,6 +105,10 @@
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
++    <ConfigurationType>StaticLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -87,6 +119,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'" Label="Configuration">
+     <ConfigurationType>DynamicLibrary</ConfigurationType>
+     <UseDebugLibraries>false</UseDebugLibraries>
+@@ -97,6 +134,11 @@
+     <UseDebugLibraries>false</UseDebugLibraries>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'" Label="Configuration">
++    <ConfigurationType>DynamicLibrary</ConfigurationType>
++    <UseDebugLibraries>false</UseDebugLibraries>
++    <WholeProgramOptimization>true</WholeProgramOptimization>
++  </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
+   </ImportGroup>
+@@ -120,6 +162,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <TargetName>lib$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <TargetName>$(RootNamespace)d</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -136,6 +186,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <TargetName>$(RootNamespace)d</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <TargetName>lib$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -152,6 +210,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <TargetName>lib$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <TargetName>$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -168,6 +234,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <TargetName>$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+     <TargetName>$(RootNamespace)</TargetName>
+     <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
+@@ -184,6 +258,14 @@
+     <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
+     <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
+   </PropertyGroup>
++  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
++    <TargetName>$(RootNamespace)</TargetName>
++    <OutDir>$(ProjectDir)..\..\..\msvc\</OutDir>
++    <IntDir>$(ProjectDir)obj\$(Configuration)\$(Platform)\$(ProjectName)\</IntDir>
++    <GeneratedFilesDir>$(ProjectDir)obj\Generated</GeneratedFilesDir>
++    <CustomBuildAfterTargets>Clean</CustomBuildAfterTargets>
++    <MSBuildWarningsAsMessages>MSB8012</MSBuildWarningsAsMessages>
++  </PropertyGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -220,6 +302,24 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -266,6 +366,28 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>Disabled</Optimization>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;_DEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <MinimalRebuild>false</MinimalRebuild>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -316,6 +438,31 @@
+       <AdditionalLibraryDirectories>$(OutDir)\lib\x64\;$(ProjectDir)\..\..\prebuilt\lib\x64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+     </Lib>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <InterproceduralOptimization>SingleFile</InterproceduralOptimization>
++      <ProgramDataBaseFileName>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Lib>
++      <OutputFile>$(OutDir)\lib\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <TargetMachine>MachineARM64</TargetMachine>
++      <SubSystem>Console</SubSystem>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++    </Lib>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -377,6 +524,36 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|Win32'">
+     <ClCompile>
+       <WarningLevel>Level3</WarningLevel>
+@@ -438,8 +615,38 @@
+       <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
+     </Link>
+   </ItemDefinitionGroup>
++  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLLStaticDeps|ARM64'">
++    <ClCompile>
++      <WarningLevel>Level3</WarningLevel>
++      <Optimization>MaxSpeed</Optimization>
++      <FunctionLevelLinking>true</FunctionLevelLinking>
++      <IntrinsicFunctions>true</IntrinsicFunctions>
++      <MultiProcessorCompilation>true</MultiProcessorCompilation>
++      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
++      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
++      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
++      <OmitFramePointers>true</OmitFramePointers>
++      <StringPooling>true</StringPooling>
++      <PreprocessorDefinitions>_WINDOWS;WIN32;_WIN32_WINNT=0x0601;NDEBUG;_USRDLL;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
++      <AdditionalIncludeDirectories>$(OutDir)\include;$(ProjectDir)\..\..\prebuilt\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
++      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
++      <TreatSpecificWarningsAsErrors>4113;%(TreatSpecificWarningsAsErrors)</TreatSpecificWarningsAsErrors>
++    </ClCompile>
++    <Link>
++      <EnableCOMDATFolding>true</EnableCOMDATFolding>
++      <OptimizeReferences>true</OptimizeReferences>
++      <OutputFile>$(OutDir)\bin\ARM64\$(TargetName)$(TargetExt)</OutputFile>
++      <ProgramDatabaseFile>$(OutDir)\lib\ARM64\$(TargetName).pdb</ProgramDatabaseFile>
++      <SubSystem>Console</SubSystem>
++      <ImportLibrary>$(OutDir)\lib\ARM64\$(TargetName).lib</ImportLibrary>
++      <ProfileGuidedDatabase>$(IntDir)\$(TargetName).pgd</ProfileGuidedDatabase>
++      <AdditionalLibraryDirectories>$(OutDir)\lib\ARM64\;$(ProjectDir)\..\..\prebuilt\lib\ARM64\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
++      <GenerateDebugInformation>true</GenerateDebugInformation>
++      <MinimumRequiredVersion>6.1</MinimumRequiredVersion>
++    </Link>
++  </ItemDefinitionGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+   <ImportGroup Label="ExtensionTargets">
+   </ImportGroup>
+   <ItemGroup />
+-</Project>
+\ No newline at end of file
++</Project>
+diff --git a/SMP/version.h b/SMP/version.h
+index 1d98cfd8..0b66a8cc 100644
+--- a/SMP/version.h
++++ b/SMP/version.h
+@@ -40,8 +40,8 @@ extern "C" {
+ #endif
+ 
+ /* Individual version numbers in decimal */
+-#define NETTLE_VERSION_MAJOR 3.10
+-#define NETTLE_VERSION_MINOR 10.1
++#define NETTLE_VERSION_MAJOR 3
++#define NETTLE_VERSION_MINOR 10
+ 
+ #define NETTLE_USE_MINI_GMP 0
+ 
