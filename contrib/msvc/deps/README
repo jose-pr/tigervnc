@@ -63,9 +63,19 @@ where the actual porting is:
       PadLock is a VIA x86 instruction-set extension. It does not exist
       on ARM64 and its sources are excluded from that build.
 
-  VSYASM yasm.props, install_script.bat
-      The props file hard-fails on any platform that is not Win32 or
-      x64, and the installer does not recognise an ARM64 host.
+  VSYASM install_script.bat
+      The installer does not recognise an ARM64 host, so SYSARCH is
+      never set and it fails. The x64 yasm runs under emulation there.
+
+      Do NOT patch yasm.props to accept ARM64 targets: yasm has no
+      ARM64 output format, so mapping ARM64 to -f win64 makes it emit
+      x86-64 objects that cannot link. An earlier version of these
+      patches did exactly that; the visible symptom is orphaned x86-64
+      .obj files in the ARM64 output directory. The stock "not
+      supported on this platform" error is correct. The gmp project
+      files must exclude every YASM item on ARM64 instead -- if any
+      slip through, check the COFF machine type of the objects rather
+      than trusting a green build.
 
 
 Using them
