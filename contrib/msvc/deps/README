@@ -16,6 +16,17 @@ day, not because TigerVNC needs them -- nothing in this directory is
 part of the build.
 
 
+Credit
+------
+
+The base of these patches -- the ARM64 project configurations across all
+four repositories, and the installer fix -- is Jonas Kvinge's work, from
+github.com/jonaski/gnutls-msvc-arm64-ci (his attempt referenced in
+ShiftMediaProject/gnutls#34). The local additions on top are the parts
+that made it link: gmp's longlong.h and config.h changes, nettle's and
+gnutls's config.h guards, and the ARM64 source exclusions.
+
+
 What the patches apply to
 -------------------------
 
