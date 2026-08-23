@@ -83,10 +83,11 @@ where the actual porting is:
       x86-64 objects that cannot link. An earlier version of these
       patches did exactly that; the visible symptom is orphaned x86-64
       .obj files in the ARM64 output directory. The stock "not
-      supported on this platform" error is correct. The gmp project
-      files must exclude every YASM item on ARM64 instead -- if any
-      slip through, check the COFF machine type of the objects rather
-      than trusting a green build.
+      supported on this platform" error is correct. The gmp patch now
+      excludes every YASM item on ARM64 (verified 2026-08-23: rebuilt
+      libgmp, 527 objects, all ARM64, yasm never invoked). If editing,
+      check the COFF machine type of the objects rather than trusting
+      a green build; /GL objects carry it at offset 6, not 0.
 
 
 Using them
